@@ -3,6 +3,7 @@ body
 {
     width: 99%;
     background-color: #EFEFEF;
+    left: 0;
 }
 /* Andacht--------------------------------------------------------------------------------------------------------------------------------*/
 .Andacht-Header
@@ -41,6 +42,7 @@ body
 /* Buttons -------------------------------------------------------------------------------------------------------------------------------*/
 .Button
 {
+    width: calc((100%/3)/2);
     height: 50px;
     border-radius: 15px;
     cursor: pointer;
@@ -49,6 +51,9 @@ body
     text-align: center;
     line-height: 50px;
     display: flex;
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
     justify-content: center;
     border: none;
     background: #EFEFEF;
@@ -69,6 +74,7 @@ body
     background-color: #36373A;
     border-radius: 15px;
     color: #EFEFEF;
+    padding: 10px;
 }
 /* Inputs---------------------------------------------------------------------------------------------------------------------------------*/
 .Normal-Input-Form
@@ -142,4 +148,99 @@ body
     background: #96d35f;
     box-shadow: inset 2px 2px 7px #4a672f,
         inset -2px -2px 7px #e3ff8f;
+}
+/* Divs-----------------------------------------------------------------------------------------------------------------------------------*/
+.wrapper
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.firstDiv
+{
+    width: calc(100%/3);
+    position: sticky;
+    top: 0;
+}
+
+.firstDivContent
+{
+    width: 50%;
+    position: sticky;
+    top: 15px;
+    left: 15px;
+}
+
+.Logo
+{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.secondDiv
+{
+    width: calc(100%/3);
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.thirdDiv
+{
+    width: calc(100%/3);
+    position: sticky;
+    top: 100;
+    right: 15px;
+}
+/* Size-Change----------------------------------------------------------------------------------------------------------------------------*/
+@media only screen and (max-width: 760px)
+{
+    .wrapper
+    {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .firstDiv
+    {
+        width: 100%;
+        position: relative;
+        align-content: center;
+    }
+
+    .firstDivContent
+    {
+        width: 100%;
+    }
+
+    .Logo
+    {
+        width: 30%;
+        margin-left: 35%;
+    }
+
+    .Announcement
+    {
+        width: calc(100%-30px);
+    }
+
+    .secondDiv
+    {
+        width: 100%;
+        overflow-x: scroll;
+        overflow-y: hidden;
+    }
+
+    .thirdDiv
+    {
+        width: 100%;
+    }
+
+    .Button
+    {
+        position: relative;
+        width: 50%;
+        margin-left: 25%;
+        bottom: 0;
+    }
 }
