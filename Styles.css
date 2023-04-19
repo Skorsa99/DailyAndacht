@@ -38,7 +38,6 @@ body
     height: 1px;
     margin-top: 10px;
 }
-
 /* Buttons -------------------------------------------------------------------------------------------------------------------------------*/
 .Button
 {
@@ -55,9 +54,6 @@ body
     background: #EFEFEF;
     box-shadow:  7px 7px 14px #a7a7a7,
             -7px -7px 14px #ffffff;
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
 }
 
 .Button:active
@@ -67,9 +63,13 @@ body
     box-shadow: inset 7px 7px 14px #a7a7a7,
             inset -7px -7px 14px #ffffff;
 }
-
 /* Cards----------------------------------------------------------------------------------------------------------------------------------*/
-
+.Announcement
+{
+    background-color: #36373A;
+    border-radius: 15px;
+    color: #EFEFEF;
+}
 /* Inputs---------------------------------------------------------------------------------------------------------------------------------*/
 .Normal-Input-Form
 {
