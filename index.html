@@ -9,6 +9,18 @@
     <link rel="icon" href="./Logo.jpeg">
 </head>
     <body>
+        <script>
+            // Check if the device is mobile
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            // Check if we need to switch to mobile or normal view
+            if (isMobile && currentView !== 'mobile') {
+            // Switch to mobile view
+            window.location.href = 'index-mobile.html';
+            } else if (!isMobile && currentView !== 'normal') {
+            // Switch to normal view
+            window.location.href = 'index.html';
+            }
+        </script>
         <div id="wrapper" style="display: flex; flex-direction: row;">
             <div style="width: calc(100%/3); position: sticky; top: 0;">
                 <div style="width: 50%; aspect-ratio: 1 / 1; position: sticky; top: 15px; left: 15px;">
