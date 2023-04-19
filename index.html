@@ -11,12 +11,14 @@
     <body>
         <script>
             // Check if the device is mobile
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const isMobile = navigator.userAgentData.mobile; //resolves true/false
+            var path = window.location.pathname;
+            var currentView = path.split("/").pop();
             // Check if we need to switch to mobile or normal view
-            if (isMobile && currentView !== 'mobile') {
+            if (isMobile === true && currentView !== 'index-mobile.html') {
             // Switch to mobile view
             window.location.href = 'index-mobile.html';
-            } else if (!isMobile && currentView !== 'normal') {
+            } else if (isMobile === false && currentView !== 'index.html') {
             // Switch to normal view
             window.location.href = 'index.html';
             }
