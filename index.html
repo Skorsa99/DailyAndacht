@@ -5,34 +5,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DailyAndacht</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./Styles.css">
     <link rel="icon" href="./Logo.jpeg">
 </head>
     <body>
-        <script>
-            // Check if the device is mobile
-            const isMobile = navigator.userAgentData.mobile; //resolves true/false
-            var path = window.location.pathname;
-            var currentView = path.split("/").pop();
-            // Check if we need to switch to mobile or normal view
-            if (isMobile === true && currentView !== 'index-mobile.html') {
-            // Switch to mobile view
-            window.location.href = 'index-mobile.html';
-            } else if (isMobile === false && currentView !== 'index.html') {
-            // Switch to normal view
-            window.location.href = 'index.html';
-            }
-        </script>
-        <div id="wrapper" style="display: flex; flex-direction: row;">
-            <div style="width: calc(100%/3); position: sticky; top: 0;">
-                <div style="width: 50%; aspect-ratio: 1 / 1; position: sticky; top: 15px; left: 15px;">
-                    <img src="./Logo.jpeg" alt="Logo" style="height: 100%; float: left;">
-                    <div class="Announcement" style="padding: 10px; float: left;">
+        <div class="wrapper">
+            <div class="firstDiv">
+                <div class="firstDivContent">
+                    <img class="Logo" src="./Logo.jpeg" alt="Logo" style="aspect-ratio: 1 / 1;">
+                    <div class="Announcement">
                         Vielen Dank für Ihren Besuch auf unserer Webseite.<br>Wir möchten Sie darauf hinweisen, dass unsere Seite derzeit noch in Bearbeitung ist. Es kann daher zu gelegentlichen Ausfällen beim Hochladen von Inhalten kommen und wir haben derzeit noch keine mobile Ansicht eingerichtet. Einige Probleme erfordern grundlegende Änderungen im Backend, was zu Verzögerungen beim Aktualisieren führen kann. Wir entschuldigen uns für eventuelle Unannehmlichkeiten und arbeiten hart daran, die Webseite so schnell wie möglich zu verbessern.<br>Vielen Dank für Ihr Verständnis.
                     </div>
                 </div>
             </div>
-            <div style="width: calc(100%/3); overflow-x: scroll; overflow-y: hidden;">
+            <div class="secondDiv">
                 <div class="Andacht-Header">
                     Der Kosmos – Ein Zeugnis der Herrlichkeit Gottes
                 </div>
@@ -62,8 +49,8 @@
                 </div>
                 <div style="height: 30px;"></div>
             </div>
-            <div style="width: calc(100%/3); position: sticky; top: 100; right: 15px;">
-                <button class="Button" style="width: calc((100%/3)/2); position: fixed; bottom: 15px; right: 15px;" onclick="window.open('https://www.buymeacoffee.com/DailyAndacht', '_blank');">
+            <div class="thirdDiv">
+                <button class="Button" onclick="window.open('https://www.buymeacoffee.com/DailyAndacht', '_blank');">
                     Support us
                 </button>                  
             </div>
