@@ -48,9 +48,7 @@
 
                         if (csvResponse.ok) {
                             const csvContent = await csvResponse.text();
-                            const csvLines = csvContent.trim().split('\n');
-                            const values = csvLines[0].split(',');
-
+                            const values = csvContent.trim().split('*DailyAndachtSeperationTag*');
                             createBacklogCard(values[0], values[5]);
                         }
                     } catch (error) {
