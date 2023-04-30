@@ -19,7 +19,7 @@
                     </div>
                 </div>
             </div>
-            <div class="secondDiv">
+            <div id="middle" class="secondDiv">
                 <!--Get all the filenames and list them as divs class="BacklogCard"-->
             </div>
             <div class="thirdDiv">
@@ -29,53 +29,63 @@
             </div>
         </div>
         <script>
-            const path = './andachten'
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = ('0' + (date.getMonth() + 1)).slice(-2);
+                const day = ('0' + date.getDate()).slice(-2);
+                return `${year}${month}${day}.csv`;
+            }
 
-            fetch(path)
-                .then(response => response.text())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const htmlDoc = parser.parseFromString(data, 'text/html');
-                    const files = htmlDoc.querySelectorAll('a');
-                    files.forEach(file => {
-                        fetch(path + "/" + file.textContent)
-                            .then(response => response.text())
-                            .then(data => {
-                                // Split the CSV data into an array of rows
-                                const values = data.split('*DailyAndachtSeperationTag*');
+            async function fetchCSVFiles() {
+                const currentDate = new Date();
+                const oldestDate = new Date('2023-04-20');
+                let tempDate = new Date(currentDate);
 
-                                // Create a new button element
-                                const button = document.createElement('button');
-                                button.classList.add('BacklogCard');
+                while (tempDate >= oldestDate) {
+                    const fileName = formatDate(tempDate);
+                    try {
+                        const csvResponse = await fetch(`./andachten/${fileName}`);
 
-                                // Set the Title value
-                                const title = document.createElement('div');
-                                title.style.fontSize = '30px';
-                                title.style.margin = '10px';
-                                title.textContent = values[0];
-                                button.appendChild(title);
+                        if (csvResponse.ok) {
+                            const csvContent = await csvResponse.text();
+                            const csvLines = csvContent.trim().split('\n');
+                            const values = csvLines[0].split(',');
 
-                                // Add a separator line
-                                const separator = document.createElement('div');
-                                separator.classList.add('Andacht-Trenner');
-                                separator.style.width = '80%';
-                                separator.style.marginLeft = '10%';
-                                button.appendChild(separator);
+                            createBacklogCard(values[0], values[5]);
+                        }
+                    } catch (error) {
+                    console.error(`Error fetching ${fileName}:`, error);
+                    }
 
-                                // Set the Date value
-                                const date = document.createElement('div');
-                                date.style.fontSize = '20px';
-                                date.style.margin = '10px';
-                                date.textContent = values[5];
-                                button.appendChild(date);
+                    tempDate.setDate(tempDate.getDate() - 1);
+                }
+            }
 
-                                // Add the button to the 'middle' element
-                                const middle = document.getElementById('middle');
-                                middle.appendChild(button);
-                            })
-                    });
-                })
-                .catch(error => console.error(error));
+            function createBacklogCard(title, date) {
+                const button = document.createElement('button');
+                button.classList.add('BacklogCard');
+
+                const titleDiv = document.createElement('div');
+                titleDiv.style.cssText = "font-size: 30px; margin: 10px;";
+                titleDiv.textContent = title;
+
+                const divider = document.createElement('div');
+                divider.classList.add('Andacht-Trenner');
+                divider.style.cssText = "width: 80%; margin-left: 10%;";
+
+                const dateDiv = document.createElement('div');
+                dateDiv.style.cssText = "font-size: 20px; margin: 10px;";
+                dateDiv.textContent = date;
+
+                button.appendChild(titleDiv);
+                button.appendChild(divider);
+                button.appendChild(dateDiv);
+
+                const middle = document.getElementById('middle');
+                middle.appendChild(button);
+            }
+
+            fetchCSVFiles();
           </script>
     </body>
 </html>
