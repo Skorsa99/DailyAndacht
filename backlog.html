@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyAndacht</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./elements/Styles.css">
+    <link rel="icon" href="./elements/Logo.jpeg">
+</head>
+    <body>
+        <div class="wrapper">
+            <div class="firstDiv">
+                <div class="firstDivContent">
+                    <img class="Logo" src="./elements/Logo.jpeg" alt="Logo" style="aspect-ratio: 1 / 1;">
+                    <div class="Announcement">
+                        Vielen Dank für Ihren Besuch auf unserer Webseite.<br>Wir möchten Sie darauf hinweisen, dass unsere Seite derzeit noch in Bearbeitung ist. Es kann daher zu gelegentlichen Ausfällen beim Hochladen von Inhalten kommen. Wir entschuldigen uns für eventuelle Unannehmlichkeiten und arbeiten hart daran, die Webseite so schnell wie möglich zu verbessern.<br>Vielen Dank für Ihr Verständnis.
+                    </div>
+                </div>
+            </div>
+            <div class="secondDiv">
+                <!--Get all the filenames and list them as divs class="BacklogCard"-->
+            </div>
+            <div class="thirdDiv">
+                <button class="Button" onclick="window.open('https://www.buymeacoffee.com/DailyAndacht', '_blank');">
+                    Support us
+                </button>                  
+            </div>
+        </div>
+        <script>
+            const path = './andachten'
+
+            fetch(path)
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const htmlDoc = parser.parseFromString(data, 'text/html');
+                    const files = htmlDoc.querySelectorAll('a');
+                    files.forEach(file => {
+                        fetch(path + "/" + file.textContent)
+                            .then(response => response.text())
+                            .then(data => {
+                                // Split the CSV data into an array of rows
+                                const values = data.split('*DailyAndachtSeperationTag*');
+
+                                // Create a new button element
+                                const button = document.createElement('button');
+                                button.classList.add('BacklogCard');
+
+                                // Set the Title value
+                                const title = document.createElement('div');
+                                title.style.fontSize = '30px';
+                                title.style.margin = '10px';
+                                title.textContent = values[0];
+                                button.appendChild(title);
+
+                                // Add a separator line
+                                const separator = document.createElement('div');
+                                separator.classList.add('Andacht-Trenner');
+                                separator.style.width = '80%';
+                                separator.style.marginLeft = '10%';
+                                button.appendChild(separator);
+
+                                // Set the Date value
+                                const date = document.createElement('div');
+                                date.style.fontSize = '20px';
+                                date.style.margin = '10px';
+                                date.textContent = values[5];
+                                button.appendChild(date);
+
+                                // Add the button to the 'middle' element
+                                const middle = document.getElementById('middle');
+                                middle.appendChild(button);
+                            })
+                    });
+                })
+                .catch(error => console.error(error));
+          </script>
+    </body>
+</html>
