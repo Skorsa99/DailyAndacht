@@ -76,6 +76,27 @@ body
     color: #EFEFEF;
     padding: 10px;
 }
+
+.BacklogCard
+{
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #EFEFEF;
+    border: none;
+    border-radius: 30px;
+    background: #1A1D1E;
+    box-shadow:  9px 9px 14px #bfbfbf,
+            -9px -9px 14px #ffffff;
+}
+
+.BacklogCard:active
+{
+    background: #1A1D1E;
+    box-shadow: inset 9px 9px 14px #0f1011,
+            inset -9px -9px 14px #252a2b;
+}
 /* Inputs---------------------------------------------------------------------------------------------------------------------------------*/
 .Normal-Input-Form
 {
