@@ -29,33 +29,21 @@
                 </div>
             </div>
             <div class="secondDiv">
-                <div class="Andacht-Header">
-                    Schlaf – Eine göttliche Gabe der Erholung und Erneuerung
-                </div>
-                <div class="Andacht-Text">
-                    Lese-Dauer: 3 Minuten
-                </div>
-                <div class="Andacht-Text">
-                    Text: Psalm 127:2
-                </div>
+                <div id="headerdiv" class="Andacht-Header"></div>
+                <div id="readtimediv" class="Andacht-Text"></div>
+                <div id="textdiv" class="Andacht-Text"></div>
                 <div class="Andacht-Trenner"></div>
                 <div class="Andacht-Header-Small">
                     Andacht:
                 </div>
-                <div class="Andacht-Text">
-                    Schlaf ist ein wesentlicher Bestandteil unseres Lebens, eine tägliche Notwendigkeit, die Körper und Geist erfrischt und erneuert. Doch nicht nur das - Schlaf ist auch eine göttliche Gabe, die uns daran erinnert, dass wir auf Gottes Fürsorge und Schutz angewiesen sind.<br><br>In Psalm 127:2 heißt es: "Es ist umsonst, dass ihr früh aufsteht und euch spät niederlegt, um das Brot der Mühsal zu essen; denn er gibt es seinen Geliebten im Schlaf." Diese Worte betonen die Notwendigkeit, auf Gottes Fürsorge und Segen zu vertrauen, anstatt auf unsere eigenen Anstrengungen.<br><br>Schlaf ist ein Zustand der Hingabe und des Vertrauens. Wenn wir schlafen, geben wir die Kontrolle ab und vertrauen darauf, dass Gott für uns sorgt. Es ist eine tägliche Erinnerung daran, dass wir nicht auf unsere eigene Kraft angewiesen sind, sondern auf Gottes Gnade und Barmherzigkeit.<br><br>Gott versteht unsere menschlichen Bedürfnisse und sorgt für uns, sogar in unserem Schlaf. In Jesaja 40:29 lesen wir: "Er gibt dem Müden Kraft und dem Ohnmächtigen mehrt er die Stärke." Gott kennt unsere Erschöpfung und versorgt uns mit neuer Kraft, oft in Form von Schlaf.<br><br>Darüber hinaus ist Schlaf auch eine Zeit der geistigen Erneuerung. In der Stille und Dunkelheit der Nacht können wir loslassen, reflektieren und uns auf den kommenden Tag vorbereiten. Es ist eine Chance, unsere Sorgen und Ängste vor Gott zu legen und seine Frieden und Trost zu empfangen.<br><br>Also, wenn wir uns zur Ruhe legen, erinnern wir uns daran, dass Schlaf eine Gabe Gottes ist, eine Zeit der Erholung, Erneuerung und Verbindung mit Gott. Lasst uns diese Gabe mit Dankbarkeit annehmen und Gott für seine Fürsorge und seinen Schutz in unserem Leben preisen.
-                </div>
+                <div id="sermondiv" class="Andacht-Text"></div>
                 <div class="Andacht-Trenner"></div>
                 <div class="Andacht-Header-Small">
                     Gebet:
                 </div>
-                <div class="Andacht-Text">
-                    Himmlischer Vater, wir danken Dir für die Gabe des Schlafs, die uns Erholung und Erneuerung bringt. Hilf uns, darin eine tägliche Erinnerung an Deine Fürsorge und unseren Bedarf an Dir zu sehen.<br><br>Gib uns die Weisheit, uns auszuruhen und auf Deine Versorgung zu vertrauen, anstatt auf unsere eigenen Anstrengungen. Mögen wir in der Stille der Nacht Deinen Frieden und Trost erfahren und mit erneuter Kraft in den neuen Tag starten.<br><br>Wir danken Dir für Deine beständige Präsenz in unserem Leben, auch in den ruhigen Stunden der Nacht. Wir beten all dies im Namen Deines geliebten Sohnes und unseres Erlösers, Jesus Christus. Amen.
-                </div>
+                <div id="prayerdiv" class="Andacht-Text"></div>
                 <div class="Andacht-Trenner"></div>
-                <div class="Andacht-Text" style="width: 100%; text-align: center;">
-                    30.04.2023
-                </div>
+                <div id="datediv" class="Andacht-Text" style="width: 100%; text-align: center;"></div>
                 <div style="height: 30px;"></div>
             </div>
             <div class="thirdDiv">
@@ -64,5 +52,32 @@
                 </button>                  
             </div>
         </div>
+        <script>
+            // Get the current date and format it as DDMMYYYY
+            const currentDate = new Date();
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const year = currentDate.getFullYear();
+            const url = `./andachten/${year}${month}${day}.csv`;
+        
+            fetch(url)
+              .then(response => response.text())
+              .then(data => {
+                // Split the CSV data into an array of rows
+                const values = data.split('*DailyAndachtSeperationTag*');
+        
+                // Display the data in the appropriate divs
+                document.getElementById('headerdiv').textContent = values[0];
+                document.getElementById('readtimediv').textContent = "Lese-Dauer: " + values[1] + " Minuten";
+                document.getElementById('textdiv').textContent = "Text: " + values[2];
+                document.getElementById('sermondiv').textContent = values[3];
+                document.getElementById('prayerdiv').textContent = values[4];
+                document.getElementById('datediv').textContent = values[5];
+                // document.getElementById('authordiv').textContent = values[6];
+              })
+              .catch(error => console.error(error));
+
+              fetch(url)
+          </script>
     </body>
 </html>
