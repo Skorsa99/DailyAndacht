@@ -68,11 +68,8 @@
             }
         
             const url = `./andachten/${dateString}.csv`;
-
-            console.log(`Fetching: ` + url);
             fetch(url)
 
-        
             fetch(url)
                 .then(response => response.text())
                 .then(data => {
