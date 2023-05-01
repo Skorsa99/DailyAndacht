@@ -53,39 +53,52 @@
             </div>
         </div>
         <script>
-            let dateString = localStorage.getItem('selectedDate');
-            if (!dateString) {
+            function fetchData() {
+                let dateParam = new URLSearchParams(window.location.search).get('date');
+        
+                if (dateParam) {
+                    // Date format is DDMMYYYY, convert it to YYYYMMDD
+                    const day = dateParam.substring(0, 2);
+                    const month = dateParam.substring(2, 4);
+                    const year = dateParam.substring(4);
+                    const formattedDate = `${year}${month}${day}`;
+        
+                    fetchAndRenderCSV(formattedDate);
+                } else {
+                    fetchAndRenderCSV(getTodayFormatted());
+                }
+            }
+        
+            function fetchAndRenderCSV(dateString) {
+                const url = `./andachten/${dateString}.csv`;
+        
+                fetch(url)
+                    .then(response => response.text())
+                    .then(data => {
+                        // Split the CSV data into an array of rows
+                        const values = data.split('*DailyAndachtSeperationTag*');
+        
+                        // Display the data in the appropriate divs
+                        document.getElementById('headerdiv').innerHTML = values[0];
+                        document.getElementById('readtimediv').innerHTML = "Lese-Dauer: " + values[1] + " Minuten";
+                        document.getElementById('textdiv').innerHTML = "Text: " + values[2];
+                        document.getElementById('sermondiv').innerHTML = values[3];
+                        document.getElementById('prayerdiv').innerHTML = values[4];
+                        document.getElementById('datediv').innerHTML = values[5];
+                        // document.getElementById('authordiv').innerHTML = values[6];
+                    })
+                    .catch(error => console.error(error));
+            }
+        
+            function getTodayFormatted() {
                 const currentDate = new Date();
                 const day = String(currentDate.getDate()).padStart(2, '0');
                 const month = String(currentDate.getMonth() + 1).padStart(2, '0');
                 const year = currentDate.getFullYear();
-                dateString = `${year}${month}${day}`;
-            } else {
-                const dateParam = new URLSearchParams(window.location.search).get('date');
-                if (dateParam) {
-                    dateString = dateParam;
-                }
+                return `${year}${month}${day}`;
             }
         
-            const url = `./andachten/${dateString}.csv`;
-            fetch(url)
-
-            fetch(url)
-                .then(response => response.text())
-                .then(data => {
-                    // Split the CSV data into an array of rows
-                    const values = data.split('*DailyAndachtSeperationTag*');
-        
-                    // Display the data in the appropriate divs
-                    document.getElementById('headerdiv').innerHTML = values[0];
-                    document.getElementById('readtimediv').innerHTML = "Lese-Dauer: " + values[1] + " Minuten";
-                    document.getElementById('textdiv').innerHTML = "Text: " + values[2];
-                    document.getElementById('sermondiv').innerHTML = values[3];
-                    document.getElementById('prayerdiv').innerHTML = values[4];
-                    document.getElementById('datediv').innerHTML = values[5];
-                    // document.getElementById('authordiv').innerHTML = values[6];
-                })
-                .catch(error => console.error(error));
+            fetchData();
         </script>        
     </body>
 </html>
