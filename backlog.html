@@ -81,6 +81,11 @@
                 button.appendChild(divider);
                 button.appendChild(dateDiv);
 
+                // Add the date as a query parameter
+                backlogCard.onclick = function () {
+                    window.location.href = `index.html?date=${date}`;
+                };
+
                 const middle = document.querySelector('.secondDiv');
                 middle.appendChild(button);
             }
