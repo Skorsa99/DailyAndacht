@@ -47,6 +47,9 @@
                 <div style="height: 30px;"></div>
             </div>
             <div class="thirdDiv">
+                <button class="Button" onclick="window.location.href('https://www.dailyandacht.com/backlog');" style="bottom: 80px;">
+                    Back-Log
+                </button>     
                 <button class="Button" onclick="window.open('https://www.buymeacoffee.com/DailyAndacht', '_blank');">
                     Support us
                 </button>                  
@@ -61,7 +64,6 @@
                     const month = dateParam.substring(4, 6);
                     const day = dateParam.substring(6, 8);
                     const formattedDate = `${year}${month}${day}`;
-                    console.log(formattedDate)
                     fetchAndRenderCSV(formattedDate);
                 } else {
                     fetchAndRenderCSV(getTodayFormatted());
