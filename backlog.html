@@ -65,7 +65,7 @@
                 const button = document.createElement('button');
                 button.classList.add('BacklogCard');
                 button.addEventListener('click', () => {
-                    localStorage.setItem('selectedDate', date);
+                    localStorage.setItem('selectedDate', date.replace(/\./g, ''));
                     window.location.href = './index.html';
                 });
 
@@ -87,7 +87,7 @@
 
                 // Add the date as a query parameter
                 button.onclick = function () {
-                    window.location.href = `index.html?date=${date}`;
+                    window.location.href = `index.html?date=${date.replace(/\./g, '')}`;
                 };
 
                 const middle = document.querySelector('.secondDiv');
