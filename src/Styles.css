@@ -40,20 +40,27 @@ body
     margin-top: 10px;
 }
 /* Buttons -------------------------------------------------------------------------------------------------------------------------------*/
-.Button
+.ButtonWrapper
 {
     width: calc((100%/3)/2);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+
+.Button
+{
     height: 50px;
+    margin-right: 15px;
+    margin-bottom: 15px;
     border-radius: 15px;
     cursor: pointer;
     font-size: 100%;
     font-family: Courier;
     text-align: center;
     line-height: 50px;
-    display: flex;
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
     justify-content: center;
     border: none;
     background: #EFEFEF;
@@ -254,6 +261,13 @@ body
 
     .thirdDiv
     {
+        width: 100%;
+        height: 145px;
+    }
+
+    .ButtonWrapper
+    {
+        position: relative;
         width: 100%;
     }
 

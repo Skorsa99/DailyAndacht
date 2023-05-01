@@ -15,16 +15,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DailyAndacht</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./elements/Styles.css">
-    <link rel="icon" href="./elements/Logo.jpeg">
+    <link rel="stylesheet" href="./src/Styles.css">
+    <link rel="icon" href="./src/Logo.jpeg">
 </head>
     <body>
         <div class="wrapper">
             <div class="firstDiv">
                 <div class="firstDivContent">
-                    <img class="Logo" src="./elements/Logo.jpeg" alt="Logo" style="aspect-ratio: 1 / 1;">
+                    <img class="Logo" src="./src/Logo.jpeg" alt="Logo" style="aspect-ratio: 1 / 1;">
                     <div class="Announcement">
-                        Vielen Dank für Ihren Besuch auf unserer Webseite.<br>Wir möchten Sie darauf hinweisen, dass unsere Seite derzeit noch in Bearbeitung ist. Es kann daher zu gelegentlichen Ausfällen beim Hochladen von Inhalten kommen. Wir entschuldigen uns für eventuelle Unannehmlichkeiten und arbeiten hart daran, die Webseite so schnell wie möglich zu verbessern.<br>Vielen Dank für Ihr Verständnis.
+                        Wir freuen uns, Ihnen mitteilen zu können, dass wir das Backlog-Feature auf unserer Webseite integriert haben! Sie können nun ältere Andachten einsehen. Bitte beachten Sie jedoch, dass noch nicht alle Andachten eingetragen wurden.
                     </div>
                 </div>
             </div>
@@ -47,9 +47,14 @@
                 <div style="height: 30px;"></div>
             </div>
             <div class="thirdDiv">
-                <button class="Button" onclick="window.open('https://www.buymeacoffee.com/DailyAndacht', '_blank');">
-                    Support us
-                </button>                  
+                <div class="ButtonWrapper">
+                    <button class="Button" onclick="window.location.href='https://www.dailyandacht.de/backlog';">
+                        Back-Log
+                    </button>
+                    <button class="Button" onclick="window.open('https://www.buymeacoffee.com/DailyAndacht', '_blank');">
+                        Support us
+                    </button>
+                </div>        
             </div>
         </div>
         <script>
@@ -61,7 +66,6 @@
                     const month = dateParam.substring(4, 6);
                     const day = dateParam.substring(6, 8);
                     const formattedDate = `${year}${month}${day}`;
-        
                     fetchAndRenderCSV(formattedDate);
                 } else {
                     fetchAndRenderCSV(getTodayFormatted());
