@@ -61,7 +61,7 @@
                     const month = dateParam.substring(4, 6);
                     const day = dateParam.substring(6, 8);
                     const formattedDate = `${year}${month}${day}`;
-        
+                    console.log(formattedDate)
                     fetchAndRenderCSV(formattedDate);
                 } else {
                     fetchAndRenderCSV(getTodayFormatted());
