@@ -57,10 +57,9 @@
                 let dateParam = new URLSearchParams(window.location.search).get('date');
         
                 if (dateParam) {
-                    // Date format is DDMMYYYY, convert it to YYYYMMDD
-                    const day = dateParam.substring(0, 2);
-                    const month = dateParam.substring(2, 4);
-                    const year = dateParam.substring(4);
+                    const year = dateParam.substring(0, 4);
+                    const month = dateParam.substring(4, 6);
+                    const day = dateParam.substring(6, 8);
                     const formattedDate = `${year}${month}${day}`;
         
                     fetchAndRenderCSV(formattedDate);
