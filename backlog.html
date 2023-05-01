@@ -64,6 +64,11 @@
             function createBacklogCard(title, date) {
                 const button = document.createElement('button');
                 button.classList.add('BacklogCard');
+                const formattedDate = date.split('.').reverse().join('');
+                button.addEventListener('click', () => {
+                    localStorage.setItem('selectedDate', formattedDate);
+                    window.location.href = './index.html';
+                });
 
                 const titleDiv = document.createElement('div');
                 titleDiv.style.cssText = "font-size: 30px; margin: 10px;";
@@ -80,6 +85,11 @@
                 button.appendChild(titleDiv);
                 button.appendChild(divider);
                 button.appendChild(dateDiv);
+
+                // Add the date as a query parameter
+                button.onclick = function () {
+                    window.location.href = `index.html?date=${formattedDate}`;
+                };
 
                 const middle = document.querySelector('.secondDiv');
                 middle.appendChild(button);

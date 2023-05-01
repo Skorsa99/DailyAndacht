@@ -53,31 +53,39 @@
             </div>
         </div>
         <script>
-            // Get the current date and format it as DDMMYYYY
-            const currentDate = new Date();
-            const day = String(currentDate.getDate()).padStart(2, '0');
-            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-            const year = currentDate.getFullYear();
-            const url = `./andachten/${year}${month}${day}.csv`;
+            let dateString = localStorage.getItem('selectedDate');
+            if (!dateString) {
+                const currentDate = new Date();
+                const day = String(currentDate.getDate()).padStart(2, '0');
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const year = currentDate.getFullYear();
+                dateString = `${year}${month}${day}`;
+            } else {
+                const dateParam = new URLSearchParams(window.location.search).get('date');
+                if (dateParam) {
+                    dateString = dateParam;
+                }
+            }
         
+            const url = `./andachten/${dateString}.csv`;
             fetch(url)
-              .then(response => response.text())
-              .then(data => {
-                // Split the CSV data into an array of rows
-                const values = data.split('*DailyAndachtSeperationTag*');
-        
-                // Display the data in the appropriate divs
-                document.getElementById('headerdiv').innerHTML = values[0];
-                document.getElementById('readtimediv').innerHTML = "Lese-Dauer: " + values[1] + " Minuten";
-                document.getElementById('textdiv').innerHTML = "Text: " + values[2];
-                document.getElementById('sermondiv').innerHTML = values[3];
-                document.getElementById('prayerdiv').innerHTML = values[4];
-                document.getElementById('datediv').innerHTML = values[5];
-                // document.getElementById('authordiv').innerHTML = values[6];
-              })
-              .catch(error => console.error(error));
 
-              fetch(url)
-          </script>
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    // Split the CSV data into an array of rows
+                    const values = data.split('*DailyAndachtSeperationTag*');
+        
+                    // Display the data in the appropriate divs
+                    document.getElementById('headerdiv').innerHTML = values[0];
+                    document.getElementById('readtimediv').innerHTML = "Lese-Dauer: " + values[1] + " Minuten";
+                    document.getElementById('textdiv').innerHTML = "Text: " + values[2];
+                    document.getElementById('sermondiv').innerHTML = values[3];
+                    document.getElementById('prayerdiv').innerHTML = values[4];
+                    document.getElementById('datediv').innerHTML = values[5];
+                    // document.getElementById('authordiv').innerHTML = values[6];
+                })
+                .catch(error => console.error(error));
+        </script>        
     </body>
 </html>
