@@ -267,6 +267,7 @@ body
 
     .ButtonWrapper
     {
+        position: relative;
         width: 100%;
     }
 
