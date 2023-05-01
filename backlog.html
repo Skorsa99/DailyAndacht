@@ -64,8 +64,9 @@
             function createBacklogCard(title, date) {
                 const button = document.createElement('button');
                 button.classList.add('BacklogCard');
+                const formattedDate = date.split('.').reverse().join('');
                 button.addEventListener('click', () => {
-                    localStorage.setItem('selectedDate', date.replace(/\./g, ''));
+                    localStorage.setItem('selectedDate', formattedDate);
                     window.location.href = './index.html';
                 });
 
