@@ -27,7 +27,10 @@
                         Wir rollen gerade updates aus, wärend wir an der webseite arbeiten, kann es zu problemen in der anzeige kommen.
                     </div>
                     <div class="Announcement" style="margin-top: 10px;">
-                        Dev V1.3
+                        Dev V1.4
+                    </div>
+                    <div id="dev" class="Announcement" style="margin-top: 10px;">
+                        
                     </div>
                     <!--
                     <div class="Announcement">
@@ -88,7 +91,9 @@
                 let tempDate = new Date(currentDate);
                 checker = false
 
-                while (checker == false) {
+                counter = 0
+
+                while (checker == false && counter < 5) {
                     const fileName = formatDate(tempDate);
                     try {
                         if(datetouse != "current"){
@@ -97,6 +102,8 @@
                         else{
                             const csvResponse = await fetch(`./andachten/${fileName}`);
                         }
+
+                        document.getElementById('headerdiv').innerHTML = fileName;
 
                         if (csvResponse.ok) {
                             const csvContent = await csvResponse.text();
@@ -118,6 +125,7 @@
                     }
 
                     tempDate.setDate(tempDate.getDate() - 1);
+                    counter = counter + 1
                 }
             }
 
