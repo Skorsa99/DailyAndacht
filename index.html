@@ -76,18 +76,24 @@
                     const formattedDate = `${year}${month}${day}`;
                     fetchCSVFile(formattedDate);
                 } else {
-                    fetchCSVFile(new Date());
+                    fetchCSVFile();
                 }
             }
 
-            async function fetchCSVFile(currentDate) {
+            async function fetchCSVFile(datetouse) {
+                currentDate = new Date()
                 let tempDate = new Date(currentDate);
                 checker = false
 
                 while (checker == false) {
                     const fileName = formatDate(tempDate);
                     try {
-                        const csvResponse = await fetch(`./andachten/${fileName}`);
+                        if(datetouse != "current"){
+                            const csvResponse = await fetch(`./andachten/${datetouse}`);
+                        }
+                        else{
+                            const csvResponse = await fetch(`./andachten/${fileName}`);
+                        }
 
                         if (csvResponse.ok) {
                             const csvContent = await csvResponse.text();
