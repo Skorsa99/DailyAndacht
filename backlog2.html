@@ -46,6 +46,7 @@
                 -->
             </div>
         </div>
+        <!--
         <script>
             function previous() {
                 // Get the content of the div
@@ -284,5 +285,203 @@
 
             buildCards(new Date())
           </script>
+          <script>
+            const monthMap = {
+                Januar: '01',
+                Februar: '02',
+                März: '03',
+                April: '04',
+                Mai: '05',
+                Juni: '06',
+                Juli: '07',
+                August: '08',
+                September: '09',
+                Oktober: '10',
+                November: '11',
+                Dezember: '12'
+            };
+        
+            const monthNameMap = {
+                '01': 'Januar',
+                '02': 'Februar',
+                '03': 'März',
+                '04': 'April',
+                '05': 'Mai',
+                '06': 'Juni',
+                '07': 'Juli',
+                '08': 'August',
+                '09': 'September',
+                '10': 'Oktober',
+                '11': 'November',
+                '12': 'Dezember'
+            };
+        
+            function previous() {
+                const monthAndYearDiv = document.getElementById('MonthAndYearDiv');
+                const content = monthAndYearDiv.textContent.trim();
+        
+                const monthYearArray = content.split(' ');
+                const month = monthYearArray[0];
+                const year = monthYearArray[1];
+        
+                const monthNumeric = monthMap[month];
+                let yearNumeric = parseInt(year);
+                let monthNumericPrev = parseInt(monthNumeric) - 1;
+        
+                if (monthNumericPrev === 0) {
+                    monthNumericPrev = 12;
+                    yearNumeric--;
+                }
+        
+                const date = new Date(yearNumeric, monthNumericPrev - 1, 1);
+        
+                buildCards(date);
+            }
+        
+            function next() {
+                const monthAndYearDiv = document.getElementById('MonthAndYearDiv');
+                const content = monthAndYearDiv.textContent.trim();
+        
+                const monthYearArray = content.split(' ');
+                const month = monthYearArray[0];
+                const year = monthYearArray[1];
+        
+                const monthNumeric = monthMap[month];
+                let yearNumeric = parseInt(year);
+                let monthNumericNext = parseInt(monthNumeric) + 1;
+        
+                if (monthNumericNext === 13) {
+                    monthNumericNext = 1;
+                    yearNumeric++;
+                }
+        
+                const date = new Date(yearNumeric, monthNumericNext - 1, 1);
+        
+                buildCards(date);
+            }
+        
+            function buildCards(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+        
+                const formattedDate = `${year}${month}01`;
+        
+                addChapterDate(formattedDate)
+                fetchCSVFiles(formattedDate)
+            }
+        
+            function addChapterDate(date) {
+                const year = date.substr(0, 4);
+                const month = date.substr(4, 2);
+                const monthName = monthNameMap[month];
+        
+                document.getElementById('MonthAndYearDiv').innerHTML = monthName + " " + year;
+            }
+        
+            // Your other functions like fetchCSVFiles, getHighestDay, formatDate, createBacklogCard go here...
+        
+            buildCards(new Date())
+        </script>
+        -->
+        <script>
+            const monthMap = {
+                Januar: '01',
+                Februar: '02',
+                März: '03',
+                April: '04',
+                Mai: '05',
+                Juni: '06',
+                Juli: '07',
+                August: '08',
+                September: '09',
+                Oktober: '10',
+                November: '11',
+                Dezember: '12'
+            };
+
+            const monthNameMap = {
+                '01': 'Januar',
+                '02': 'Februar',
+                '03': 'März',
+                '04': 'April',
+                '05': 'Mai',
+                '06': 'Juni',
+                '07': 'Juli',
+                '08': 'August',
+                '09': 'September',
+                '10': 'Oktober',
+                '11': 'November',
+                '12': 'Dezember'
+            };
+
+            function previous() {
+                const monthAndYearDiv = document.getElementById('MonthAndYearDiv');
+                const content = monthAndYearDiv.textContent.trim();
+
+                const monthYearArray = content.split(' ');
+                const month = monthYearArray[0];
+                const year = monthYearArray[1];
+
+                const monthNumeric = monthMap[month];
+                let yearNumeric = parseInt(year);
+                let monthNumericPrev = parseInt(monthNumeric) - 1;
+
+                if (monthNumericPrev === 0) {
+                    monthNumericPrev = 12;
+                    yearNumeric--;
+                }
+
+                const date = new Date(yearNumeric, monthNumericPrev - 1, 1);
+
+                buildCards(date);
+            }
+
+            function next() {
+                const monthAndYearDiv = document.getElementById('MonthAndYearDiv');
+                const content = monthAndYearDiv.textContent.trim();
+
+                const monthYearArray = content.split(' ');
+                const month = monthYearArray[0];
+                const year = monthYearArray[1];
+
+                const monthNumeric = monthMap[month];
+                let yearNumeric = parseInt(year);
+                let monthNumericNext = parseInt(monthNumeric) + 1;
+
+                if (monthNumericNext === 13) {
+                    monthNumericNext = 1;
+                    yearNumeric++;
+                }
+
+                const date = new Date(yearNumeric, monthNumericNext - 1, 1);
+
+                buildCards(date);
+            }
+
+            function buildCards(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+
+                const formattedDate = `${year}${month}01`;
+
+                addChapterDate(formattedDate)
+                fetchCSVFiles(formattedDate)
+            }
+
+            function addChapterDate(date) {
+                const year = date.substr(0, 4);
+                const month = date.substr(4, 2);
+                const monthName = monthNameMap[month];
+
+                document.getElementById('MonthAndYearDiv').innerHTML = monthName + " " + year;
+            }
+
+            // Your other functions like fetchCSVFiles, getHighestDay, formatDate, createBacklogCard go here...
+
+            buildCards(new Date())
+        </script>
+
+
+
     </body>
 </html>
