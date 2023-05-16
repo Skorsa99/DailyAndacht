@@ -63,7 +63,8 @@
 
                 const monthNumeric = monthMap[month];
 
-                if (monthNumeric !== 3 && parseInt(year) !== 2023) {
+                // if (monthNumeric !== 3 && parseInt(year) !== 2023) {
+                if (monthNumeric.toString() + year !== "32023") {
                     let date = new Date(year, monthNumeric);
                     date.setMonth(date.getMonth() - 1);
 
