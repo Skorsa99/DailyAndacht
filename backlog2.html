@@ -18,7 +18,7 @@
                         Wir freuen uns, Ihnen mitteilen zu können, dass wir das Backlog-Feature auf unserer Webseite integriert haben! Sie können nun ältere Andachten einsehen.
                     </div>-->
                     <div class="Announcement">
-                        3
+                        4
                     </div>
                 </div>
             </div>
@@ -367,9 +367,27 @@
             }
 
             function addChapterDate(date) {
-                const year = date.substr(0, 4);
-                const month = date.substr(4, 2);
-                const monthName = monthNameMap[month];
+                // Extract year and month from the date string
+                let year = date.substr(0, 4);
+                let month = date.substr(4, 2);
+
+                // Convert month number to month name using the monthMap
+                const monthMap = {
+                    "01": "Januar",
+                    "02": "Februar",
+                    "03": "März",
+                    "04": "April",
+                    "05": "Mai",
+                    "06": "Juni",
+                    "07": "Juli",
+                    "08": "August",
+                    "09": "September",
+                    "10": "Oktober",
+                    "11": "November",
+                    "12": "Dezember"
+                };
+
+                let monthName = monthMap[month];
 
                 document.getElementById('MonthAndYearDiv').innerHTML = monthName + " " + year;
             }
