@@ -18,7 +18,7 @@
                         Wir freuen uns, Ihnen mitteilen zu können, dass wir das Backlog-Feature auf unserer Webseite integriert haben! Sie können nun ältere Andachten einsehen.
                     </div>-->
                     <div class="Announcement">
-                        4
+                        5
                     </div>
                 </div>
             </div>
@@ -404,6 +404,7 @@
                 while (tempDate >= oldestDate) {
                     const fileName = formatDate(tempDate);
                     try {
+                        console.log(`Trying to fetch: ${fileName}`); // Add this line
                         const csvResponse = await fetch(`./andachten/${fileName}`);
 
                         if (csvResponse.ok) {
