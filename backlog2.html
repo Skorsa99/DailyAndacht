@@ -370,6 +370,10 @@
 
                 const formattedDate = `${year}${month}01`;
 
+                // Get the cardholder element and clear its content
+                const cardholder = document.querySelector('.cardholder');
+                cardholder.innerHTML = '';
+
                 addChapterDate(formattedDate)
                 fetchCSVFiles(formattedDate)
             }
