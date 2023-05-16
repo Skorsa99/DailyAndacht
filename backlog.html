@@ -14,6 +14,9 @@
             <div class="firstDiv">
                 <div class="firstDivContent">
                     <img class="Logo" src="./src/Logo.jpeg" alt="Logo" style="aspect-ratio: 1 / 1;" onclick="window.location.href='https://www.dailyandacht.de';">
+                    <div class="Announcement">
+                        Wir testen gerade eine neue version des Backlogs, wir bitten um entschuldigung falls dies zu Problemen führt.<br>V 1.1
+                    </div>
                     <!--<div class="Announcement">
                         Wir freuen uns, Ihnen mitteilen zu können, dass wir das Backlog-Feature auf unserer Webseite integriert haben! Sie können nun ältere Andachten einsehen.
                     </div>-->
@@ -94,10 +97,16 @@
 
                 const monthNumeric = monthMap[month];
 
-                let date = new Date(year, monthNumeric);
-                date.setMonth(date.getMonth() + 1);
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth();
+                const currentYear = currentDate.getFullYear();
 
-                buildCards(date)
+                if (currentYear !== parseInt(year) && currentMonth !== monthNumeric) {
+                    let date = new Date(year, monthNumeric);
+                    date.setMonth(date.getMonth() + 1);
+
+                    buildCards(date)
+                }
             }
 
             function buildCards(date) {
