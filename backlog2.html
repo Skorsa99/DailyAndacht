@@ -18,7 +18,7 @@
                         Wir freuen uns, Ihnen mitteilen zu können, dass wir das Backlog-Feature auf unserer Webseite integriert haben! Sie können nun ältere Andachten einsehen.
                     </div>-->
                     <div class="Announcement">
-                        5
+                        6
                     </div>
                 </div>
             </div>
@@ -423,7 +423,7 @@
             function getHighestDay(year, month) {
                 // Create a new Date object with the given year and month
                 // Set the day to 0 to get the last day of the previous month
-                date = new Date(year, month - 1, 0);
+                date = new Date(year, Number(month), 0); // Convert month to number, keep day as 0
 
                 // Get the last day of the month
                 lastDay = date.getDate();
