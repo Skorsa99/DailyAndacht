@@ -63,10 +63,12 @@
 
                 const monthNumeric = monthMap[month];
 
-                let date = new Date(year, monthNumeric);
-                date.setMonth(date.getMonth() - 1);
+                if (monthNumeric !== 3 && parseInt(year) !== 2023) {
+                    let date = new Date(year, monthNumeric);
+                    date.setMonth(date.getMonth() - 1);
 
-                buildCards(date)
+                    buildCards(date)
+                }
             }
 
             function next() {
