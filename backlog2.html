@@ -18,7 +18,7 @@
                         Wir freuen uns, Ihnen mitteilen zu können, dass wir das Backlog-Feature auf unserer Webseite integriert haben! Sie können nun ältere Andachten einsehen.
                     </div>-->
                     <div class="Announcement">
-                        2
+                        3
                     </div>
                 </div>
             </div>
@@ -290,36 +290,6 @@
           </script>
         -->
         <script>
-            const monthMap = {
-                Januar: '01',
-                Februar: '02',
-                März: '03',
-                April: '04',
-                Mai: '05',
-                Juni: '06',
-                Juli: '07',
-                August: '08',
-                September: '09',
-                Oktober: '10',
-                November: '11',
-                Dezember: '12'
-            };
-
-            const monthNameMap = {
-                '01': 'Januar',
-                '02': 'Februar',
-                '03': 'März',
-                '04': 'April',
-                '05': 'Mai',
-                '06': 'Juni',
-                '07': 'Juli',
-                '08': 'August',
-                '09': 'September',
-                '10': 'Oktober',
-                '11': 'November',
-                '12': 'Dezember'
-            };
-
             function previous() {
                 const monthAndYearDiv = document.getElementById('MonthAndYearDiv');
                 const content = monthAndYearDiv.textContent.trim();
@@ -328,18 +298,27 @@
                 const month = monthYearArray[0];
                 const year = monthYearArray[1];
 
+                const monthMap = {
+                    Januar: 0,
+                    Februar: 1,
+                    März: 2,
+                    April: 3,
+                    Mai: 4,
+                    Juni: 5,
+                    Juli: 6,
+                    August: 7,
+                    September: 8,
+                    Oktober: 9,
+                    November: 10,
+                    Dezember: 11
+                };
+
                 const monthNumeric = monthMap[month];
-                let yearNumeric = parseInt(year);
-                let monthNumericPrev = parseInt(monthNumeric) - 1;
 
-                if (monthNumericPrev === 0) {
-                    monthNumericPrev = 12;
-                    yearNumeric--;
-                }
+                let date = new Date(year, monthNumeric);
+                date.setMonth(date.getMonth() - 1);
 
-                const date = new Date(yearNumeric, monthNumericPrev - 1, 1);
-
-                buildCards(date);
+                buildCards(date)
             }
 
             function next() {
@@ -350,18 +329,27 @@
                 const month = monthYearArray[0];
                 const year = monthYearArray[1];
 
+                const monthMap = {
+                    Januar: 0,
+                    Februar: 1,
+                    März: 2,
+                    April: 3,
+                    Mai: 4,
+                    Juni: 5,
+                    Juli: 6,
+                    August: 7,
+                    September: 8,
+                    Oktober: 9,
+                    November: 10,
+                    Dezember: 11
+                };
+
                 const monthNumeric = monthMap[month];
-                let yearNumeric = parseInt(year);
-                let monthNumericNext = parseInt(monthNumeric) + 1;
 
-                if (monthNumericNext === 13) {
-                    monthNumericNext = 1;
-                    yearNumeric++;
-                }
+                let date = new Date(year, monthNumeric);
+                date.setMonth(date.getMonth() + 1);
 
-                const date = new Date(yearNumeric, monthNumericNext - 1, 1);
-
-                buildCards(date);
+                buildCards(date)
             }
 
             function buildCards(date) {
