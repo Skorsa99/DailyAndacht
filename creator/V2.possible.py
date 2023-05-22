@@ -6,6 +6,10 @@ def main():
     # Clear the terminal
     os.system("clear")
 
+    # initialize the path and possiblepath
+    path = "/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/andachten"
+    possiblepath = "/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/possible_andachten"
+
     # Print header
     print("-------------------------------------------------------------")
     print("The Program has started")
@@ -15,9 +19,9 @@ def main():
     mode = input("do you want to create a new file (c) or move one to active (m):\n")
 
     if(mode == "c"):
-        create_new()
+        create_new(possiblepath)
     elif(mode == "m"):
-        move()
+        move(path, possiblepath)
     else:
         print("")
         print("no valid selection")
@@ -25,11 +29,9 @@ def main():
 
         main()
 
-def create_new():
+def create_new(possiblepath):
     # Clear the terminal
     os.system("clear")
-    
-    path = "/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/possible_andachten"
 
     print("-------------------------------------------------------------")
     print("")
@@ -113,32 +115,32 @@ def create_new():
     print("Gibt es einen besonderen Author? Eine leere ausgabe wird mit \"DailyAndacht Team\" ersetzt:")
     author = input("")
 
-    createfile(path, title, readtime, text, andacht, prayer, author)
+    createfile(possiblepath, title, readtime, text, andacht, prayer, author)
 
-def createfile(path, title, readtime, text, andacht, prayer, author):    
+def createfile(possiblepath, title, readtime, text, andacht, prayer, author):    
     filename = title + ".csv"
 
     seperator = "*DailyAndachtSeperationTag*"
 
-    if not os.path.exists(path):
-        print("The required path (" + path + ") does not exist,\nthis indicates that there are errors. We recommend exiting the program.\n If you want you can choose so set an alternate path for the file to be stored into.")
+    if not os.possiblepath.exists(possiblepath):
+        print("The required possiblepath (" + possiblepath + ") does not exist,\nthis indicates that there are errors. We recommend exiting the program.\n If you want you can choose so set an alternate possiblepath for the file to be stored into.")
         exit = input("Do you want to exit the program? y/n:\n")
 
         if(exit != "n"):
             exit()
         else:
-            path = input("please enter the new path:\n")
+            possiblepath = input("please enter the new possiblepath:\n")
             print("")
         
-    if os.path.isfile(path + '/' + filename):
-        proceede = input(f"The file for the {filename} already exists in the given path {path}.\nDo you want to change the date for the Andacht, replace the file or exit the Program?\nChange Date = c\nReplace File = r\nExit Program = e\n")
+    if os.possiblepath.isfile(possiblepath + '/' + filename):
+        proceede = input(f"The file for the {filename} already exists in the given possiblepath {possiblepath}.\nDo you want to change the date for the Andacht, replace the file or exit the Program?\nChange Date = c\nReplace File = r\nExit Program = e\n")
         
         if(proceede == "c"):
             filename = input("What is the Andacht supposed to be called:\n")
             filename = filename + ".csv"
             print("")
         elif(proceede == "r"):
-            os.remove(path + '/' + filename)
+            os.remove(possiblepath + '/' + filename)
         else:
             exit()
 
@@ -149,9 +151,9 @@ def createfile(path, title, readtime, text, andacht, prayer, author):
     
     content = title + seperator + readtime + seperator + text + seperator + andacht + seperator + prayer + seperator + date_formatted + seperator + author_formatted
     
-    file_path = os.path.join(path, filename)
+    file_possiblepath = os.possiblepath.join(possiblepath, filename)
 
-    with open(file_path, 'w') as csv_file:
+    with open(file_possiblepath, 'w') as csv_file:
         csv_file.write(content)
 
     print("-------------------------------------------------------------")
@@ -175,7 +177,106 @@ def createfile(path, title, readtime, text, andacht, prayer, author):
         os.system("clear")
         quit()
     
-def move():
-    print("implement")
+def move(path, possiblepath):
+    # Clears the terminal
+    os.system("clear")
+
+    # Print the Header with all the possible Andachdachten
+    print("-------------------------------------------------------------")
+    print("")
+    print("The Following Andachten are in the Possible Folder and not jet active:")
+    print("")
+
+    # Get all file names in the directory
+    directory = os.listdir(possiblepath)
+    files = []
+    count = 0
+
+    # Filter out non-csv files and print Filenames
+    for file in directory:
+        if file.endswith(".csv"):
+            try:
+                # Store and display Filenames with the appropriate index
+                files.append(file)
+                print(str(count) + ": " + file)
+
+                count = count + 1
+            except ValueError:
+                pass
+
+    print("")
+    print("-------------------------------------------------------------")
+    print("")
+    
+    # Let the user choose a file
+    chosenfile = input("Please enter the number of the required file:\n")
+
+    print("")
+    print("-------------------------------------------------------------")
+    print("")
+    
+    # ask user for validation
+    checker = input("You have chosen:\n" + files[int(chosenfile)] + "\nis that correct? (y/n)\n")
+
+    if(checker == "y"):
+        # Onitialize Varbiables
+        filename = path + "/" + files[int(chosenfile)]
+        content = ""
+        seperator = "*DailyAndachtSeperationTag*"
+
+        # Store the values
+        with open(filename, 'r') as csv_file:
+            content = csv_file.readline().strip()
+
+        values = content.split("*DailyAndachtSeperationTag*")
+
+        # Clears the Terminal
+        os.system("clear")
+
+        print("-------------------------------------------------------------")
+        print("")
+        modeselector = input("Do you want to add the files missing details manually?: (y/n)\n")
+
+        if(modeselector == "n"):
+            if not os.path.exists(path):
+                print("The required path for the active Andachten (" + path + ") does not exist,\nthis indicates that there are errors. We recommend exiting the program.\n If you want you can choose so set an alternate path for the file to be stored into.")
+                exit = input("Do you want to exit the program? y/n:\n")
+
+                if(exit != "n"):
+                    exit()
+                else:
+                    path = input("please enter the new path:\n")
+                    print("")
+
+                # Get all file names in the directory
+                files = os.listdir(path)
+
+                # Filter out non-csv files and convert file names to dates
+                dates = []
+                for file in files:
+                    if file.endswith(".csv"):
+                        try:
+                            date = datetime.strptime(file[:-4], "%Y%m%d")
+                            dates.append(date)
+                        except ValueError:
+                            pass
+
+                # Find the latest date
+                latest_date = max(dates)
+
+                # Add one day to the latest date
+                next_date = latest_date + timedelta(days=1)
+
+                # Convert the next date back to a string in YYYYMMDD format
+                date = next_date.strftime("%Y%m%d")
+
+                # Continue coding
+        else:
+            print("Implement")
+
+
+    else:
+        move(path, possiblepath)
+    
 
 main()
