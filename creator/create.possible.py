@@ -122,7 +122,7 @@ def createfile(possiblepath, title, readtime, text, andacht, prayer, author):
 
     seperator = "*DailyAndachtSeperationTag*"
 
-    if not os.possiblepath.exists(possiblepath):
+    if not os.path.exists(possiblepath):
         print("The required possiblepath (" + possiblepath + ") does not exist,\nthis indicates that there are errors. We recommend exiting the program.\n If you want you can choose so set an alternate possiblepath for the file to be stored into.")
         exit = input("Do you want to exit the program? y/n:\n")
 
@@ -132,7 +132,7 @@ def createfile(possiblepath, title, readtime, text, andacht, prayer, author):
             possiblepath = input("please enter the new possiblepath:\n")
             print("")
         
-    if os.possiblepath.isfile(possiblepath + '/' + filename):
+    if os.path.isfile(possiblepath + '/' + filename):
         proceede = input(f"The file for the {filename} already exists in the given possiblepath {possiblepath}.\nDo you want to change the date for the Andacht, replace the file or exit the Program?\nChange Date = c\nReplace File = r\nExit Program = e\n")
         
         if(proceede == "c"):
@@ -151,7 +151,7 @@ def createfile(possiblepath, title, readtime, text, andacht, prayer, author):
     
     content = title + seperator + readtime + seperator + text + seperator + andacht + seperator + prayer + seperator + date_formatted + seperator + author_formatted
     
-    file_possiblepath = os.possiblepath.join(possiblepath, filename)
+    file_possiblepath = os.path.join(possiblepath, filename)
 
     with open(file_possiblepath, 'w') as csv_file:
         csv_file.write(content)
@@ -235,7 +235,29 @@ def move(path, possiblepath):
         print("")
         modeselector = input("Do you want to add the files missing details manually?: (y/n)\n")
 
-        if(modeselector == "n"):
+        if(modeselector == "y"):
+            # Let the user select his own path where the Andacht should be stored
+            path = input("Please enter the oath the Andacht should be stored in: (no need to end with \"/\")\n")
+
+            if not os.path.exists(path):
+                print("Implement path beeing created")
+
+            print("")
+
+            # Let the user choose his own Date for the Andacht
+            date = input("Please enter the date for the Andacht: (YYYYMMDD)\n")
+
+            while(os.path.isfile(path + "/" + date + ".csv")):
+                x = input("The path you provided already contains a Andacht for this Date, do you want to change the path (p) or change the Date (d):\n")
+                print("")
+                if(x == "p"):
+                    path = input("Please enter the new Path: (no need to end with \"/\")")
+                elif(x == "d"):
+                    date = input("Please enter the new Date for the Andacht: (YYYYMMDD)\n")
+                else:
+                    print("No valid input detected")
+                    print("")
+        else:
             if not os.path.exists(path):
                 print("The required path for the active Andachten (" + path + ") does not exist,\nthis indicates that there are errors. We recommend exiting the program.\n If you want you can choose so set an alternate path for the file to be stored into.")
                 exit = input("Do you want to exit the program? y/n:\n")
@@ -268,62 +290,60 @@ def move(path, possiblepath):
             # Convert the next date back to a string in YYYYMMDD format
             date = next_date.strftime("%Y%m%d")
 
-            # Convert the next date to a string in DD.MM.YYYY format
-            date_formatted = date[6:] + "." + date[4:6] + "." + date[:4]
+        # Convert the next date to a string in DD.MM.YYYY format
+        date_formatted = date[6:] + "." + date[4:6] + "." + date[:4]
 
-            # Update the Date in the file
-            values[5] = date_formatted
-            newfilename = path + date + ".csv"
-            content = values[1] + seperator + values[2] + seperator + values[3] + seperator + values[4] + seperator + values[5] + seperator + values[6]
+        # Update the Date in the file
+        values[5] = date_formatted
+        newfilename = path + date + ".csv"
+        content = values[1] + seperator + values[2] + seperator + values[3] + seperator + values[4] + seperator + values[5] + seperator + values[6]
 
-            # Create new file
-            with open(newfilename, 'w') as csv_file:
-                csv_file.write(content)
+        # Create new file
+        with open(newfilename, 'w') as csv_file:
+            csv_file.write(content)
 
-            # Clear the terminal
-            os.system("clear")
+        # Clear the terminal
+        os.system("clear")
 
-            print("-------------------------------------------------------------")
-            print("")
-            print("The new File has successfully been created as " + date + ".csv")
-            print("")
-            print("-------------------------------------------------------------")
+        print("-------------------------------------------------------------")
+        print("")
+        print("The new File has successfully been created as " + date + ".csv")
+        print("")
+        print("-------------------------------------------------------------")
 
-            time.sleep(1)
+        time.sleep(1)
 
-            print("-------------------------------------------------------------")
-            print("")
-            print("The old File has successfully been deleted")
-            print("")
-            print("-------------------------------------------------------------")
+        print("-------------------------------------------------------------")
+        print("")
+        print("The old File has successfully been deleted")
+        print("")
+        print("-------------------------------------------------------------")
 
-            time.sleep(1)
+        time.sleep(1)
 
-            # Clear the terminal
-            os.system("clear")
+        # Clear the terminal
+        os.system("clear")
 
-            print("-------------------------------------------------------------")
-            print("")
-            again = input("Do you want to keep working?: (y/n)")
+        print("-------------------------------------------------------------")
+        print("")
+        again = input("Do you want to keep working?: (y/n)")
 
-            if(again == "y"):
-                main()
-            else:
-                #Clear the Terminal
-                os.system("clear")
-
-                print("-------------------------------------------------------------")
-                print("")
-                print("Vielen Dank, noch einen Schönen Tag!")
-                print("Auf Wiedersehen!")
-                print("")
-                print("-------------------------------------------------------------")
-
-                time.sleep(3)
-                os.system("clear")
-                quit()
+        if(again == "y"):
+            main()
         else:
-            print("Implement")
+            #Clear the Terminal
+            os.system("clear")
+
+            print("-------------------------------------------------------------")
+            print("")
+            print("Vielen Dank, noch einen Schönen Tag!")
+            print("Auf Wiedersehen!")
+            print("")
+            print("-------------------------------------------------------------")
+
+            time.sleep(3)
+            os.system("clear")
+            quit()
     else:
         move(path, possiblepath)
     
