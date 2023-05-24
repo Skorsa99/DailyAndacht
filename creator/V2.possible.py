@@ -220,15 +220,13 @@ def move(path, possiblepath):
 
     if(checker == "y"):
         # Onitialize Varbiables
-        filename = path + "/" + files[int(chosenfile)]
-        content = ""
+        filename = possiblepath + "/" + files[int(chosenfile)]
+        values = []
         seperator = "*DailyAndachtSeperationTag*"
 
         # Store the values
         with open(filename, 'r') as csv_file:
-            content = csv_file.readline().strip()
-
-        values = content.split("*DailyAndachtSeperationTag*")
+            values = csv_file.readline().strip()
 
         # Clears the Terminal
         os.system("clear")
@@ -248,33 +246,84 @@ def move(path, possiblepath):
                     path = input("please enter the new path:\n")
                     print("")
 
-                # Get all file names in the directory
-                files = os.listdir(path)
+            # Get all file names in the directory
+            files = os.listdir(path)
 
-                # Filter out non-csv files and convert file names to dates
-                dates = []
-                for file in files:
-                    if file.endswith(".csv"):
-                        try:
-                            date = datetime.strptime(file[:-4], "%Y%m%d")
-                            dates.append(date)
-                        except ValueError:
-                            pass
+            # Filter out non-csv files and convert file names to dates
+            dates = []
+            for file in files:
+                if file.endswith(".csv"):
+                    try:
+                        date = datetime.strptime(file[:-4], "%Y%m%d")
+                        dates.append(date)
+                    except ValueError:
+                        pass
 
-                # Find the latest date
-                latest_date = max(dates)
+            # Find the latest date
+            latest_date = max(dates)
 
-                # Add one day to the latest date
-                next_date = latest_date + timedelta(days=1)
+            # Add one day to the latest date
+            next_date = latest_date + timedelta(days=1)
 
-                # Convert the next date back to a string in YYYYMMDD format
-                date = next_date.strftime("%Y%m%d")
+            # Convert the next date back to a string in YYYYMMDD format
+            date = next_date.strftime("%Y%m%d")
 
-                # Continue coding
+            # Convert the next date to a string in DD.MM.YYYY format
+            date_formatted = date[6:] + "." + date[4:6] + "." + date[:4]
+
+            # Update the Date in the file
+            values[5] = date_formatted
+            newfilename = path + date + ".csv"
+            content = values[1] + seperator + values[2] + seperator + values[3] + seperator + values[4] + seperator + values[5] + seperator + values[6]
+
+            # Create new file
+            with open(newfilename, 'w') as csv_file:
+                csv_file.write(content)
+
+            # Clear the terminal
+            os.system("clear")
+
+            print("-------------------------------------------------------------")
+            print("")
+            print("The new File has successfully been created as " + date + ".csv")
+            print("")
+            print("-------------------------------------------------------------")
+
+            time.sleep(1)
+
+            print("-------------------------------------------------------------")
+            print("")
+            print("The old File has successfully been deleted")
+            print("")
+            print("-------------------------------------------------------------")
+
+            time.sleep(1)
+
+            # Clear the terminal
+            os.system("clear")
+
+            print("-------------------------------------------------------------")
+            print("")
+            again = input("Do you want to keep working?: (y/n)")
+
+            if(again == "y"):
+                main()
+            else:
+                #Clear the Terminal
+                os.system("clear")
+
+                print("-------------------------------------------------------------")
+                print("")
+                print("Vielen Dank, noch einen Schönen Tag!")
+                print("Auf Wiedersehen!")
+                print("")
+                print("-------------------------------------------------------------")
+
+                time.sleep(3)
+                os.system("clear")
+                quit()
         else:
             print("Implement")
-
-
     else:
         move(path, possiblepath)
     
