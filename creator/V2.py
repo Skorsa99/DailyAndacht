@@ -2,9 +2,7 @@ import os
 import time
 from datetime import datetime, timedelta
 
-# V_3.0
-
-def main():
+def main(path):
     # Clear the terminal
     os.system("clear")
 
@@ -13,40 +11,54 @@ def main():
     print("The Program has started")
     print("-------------------------------------------------------------")
     
-    print("")
+    # Asks user for path if no path was set previously
+    if(path == "nopath"):
+        print("")
+        sequential = input("Möchten sie den Pfad und das Datum manuell eingeben? (y/n):\n")
+
+        if(sequential == "y"):
+            print("")
+            path = input("Bitte geben sie den pfad ein unter dem die datei gespeichert werden soll (no need to end with /):\n")
+
+            if(path == "dev"):
+                path = "./"
     
-    path = "/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/andachten"
+            # Asks user for date to be published
+            print("")
+            date = input("Für wann ist die Andacht (YYYYMMDD):\n")
+        else:
+            path = "/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/andachten"
 
-    # Get all file names in the directory
-    files = os.listdir(path)
+            # Get all file names in the directory
+            files = os.listdir(path)
 
-    # Filter out non-csv files and convert file names to dates
-    dates = []
-    for file in files:
-        if file.endswith(".csv"):
-            try:
-                date = datetime.strptime(file[:-4], "%Y%m%d")
-                dates.append(date)
-            except ValueError:
-                pass
+            # Filter out non-csv files and convert file names to dates
+            dates = []
+            for file in files:
+                if file.endswith(".csv"):
+                    try:
+                        date = datetime.strptime(file[:-4], "%Y%m%d")
+                        dates.append(date)
+                    except ValueError:
+                        pass
 
-    # Find the latest date
-    latest_date = max(dates)
+            # Find the latest date
+            latest_date = max(dates)
 
-    # Add one day to the latest date
-    next_date = latest_date + timedelta(days=1)
+            # Add one day to the latest date
+            next_date = latest_date + timedelta(days=1)
 
-    # Convert the next date back to a string in YYYYMMDD format
-    date = next_date.strftime("%Y%m%d")
+            # Convert the next date back to a string in YYYYMMDD format
+            date = next_date.strftime("%Y%m%d")
 
+    print("")
+    readtime = input("Wiviele minuten ist die Lese-Dauer (m):\n")
     print("")
     print("-------------------------------------------------------------")
 
     # Explain to user how to enter
     print("")
-    print("In Version 3 kannst du nun die ganze Andacht auf einmal eingeben,")
-    print("ohne dass weitere eingaben Erfordert sind.")
-    print("")
+    print("In Version 2 kannst du nun die ganze Andacht auf einmal eingeben.")
     print("Dies jedoch erfordert eine ganz besondere Formatierung:")
     print("")
     print("Titel: [...]")
@@ -117,18 +129,10 @@ def main():
     print("")
     print("-------------------------------------------------------------")
     print("")
-
-    readtime = calculatereadtime(title, andacht, prayer)
-
-    print("-------------------------------------------------------------")
-    print("")
     print("Gibt es einen besonderen Author? Eine leere ausgabe wird mit \"DailyAndacht Team\" ersetzt:")
     author = input("")
 
     createfile(path, date, title, readtime, text, andacht, prayer, author)
-
-def calculatereadtime(title, andacht, prayer):
-    content = title + " " + andacht.replace("<br><br>", " ") + " " + andacht.replace("<br><br>", " ")
 
 def createfile(path, date, title, readtime, text, andacht, prayer, author):    
     filename = date + ".csv"
@@ -176,7 +180,7 @@ def createfile(path, date, title, readtime, text, andacht, prayer, author):
     another = input("Möchtens sie eine weitere Andacht in dem gleichen Ordner erstellen? y/n\n")
 
     if(another == "y"):
-        main()
+        main(path)
     else:
         print("")
         print("-------------------------------------------------------------")
@@ -190,4 +194,4 @@ def createfile(path, date, title, readtime, text, andacht, prayer, author):
         os.system("clear")
         quit()
 
-main()
+main("nopath")
