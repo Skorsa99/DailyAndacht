@@ -1,6 +1,7 @@
 import os
 import time
 from datetime import datetime, timedelta
+import math
 
 def main():
     # Clear the terminal
@@ -33,13 +34,8 @@ def create_new(possiblepath):
     # Clear the terminal
     os.system("clear")
 
-    print("-------------------------------------------------------------")
-    print("")
-    readtime = input("Wiviele minuten ist die Lese-Dauer (m):\n")
-    print("")
-    print("-------------------------------------------------------------")
-
     # Explain to user how to enter
+    print("-------------------------------------------------------------")
     print("")
     print("In Version 2 kannst du nun die ganze Andacht auf einmal eingeben.")
     print("Dies jedoch erfordert eine ganz besondere Formatierung:")
@@ -115,7 +111,21 @@ def create_new(possiblepath):
     print("Gibt es einen besonderen Author? Eine leere ausgabe wird mit \"DailyAndacht Team\" ersetzt:")
     author = input("")
 
+    readtime = calculatereadtime(title, andacht, prayer)
+
     createfile(possiblepath, title, readtime, text, andacht, prayer, author)
+
+def calculatereadtime(title, andacht, prayer):
+    content = title + " " + andacht.replace("<br><br>", " ") + " " + andacht.replace("<br><br>", " ")
+    words = content.split(" ")
+    wordcount = len(words)
+    wordsperminute = 200
+    readtime = 0
+
+    exacttime = wordcount/wordsperminute
+    readtime = math.floor(exacttime) if exacttime % 1 < 0.4 else math.ceil(exacttime)
+
+    return str(readtime)
 
 def createfile(possiblepath, title, readtime, text, andacht, prayer, author):    
     filename = title + ".csv"
