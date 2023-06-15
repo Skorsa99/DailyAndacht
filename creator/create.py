@@ -3,6 +3,9 @@ import time
 from datetime import datetime, timedelta
 import math
 
+from PIL import Image, ImageDraw, ImageFont
+import textwrap
+
 # V_3.0
 
 def main():
@@ -179,6 +182,8 @@ def createfile(path, date, title, readtime, text, andacht, prayer, author):
     with open(file_path, 'w') as csv_file:
         csv_file.write(content)
 
+    createimage(title, text, date_formatted, date)
+
     print("-------------------------------------------------------------")
     print("")
     print("File has successfully been created")
@@ -199,5 +204,82 @@ def createfile(path, date, title, readtime, text, andacht, prayer, author):
         time.sleep(3)
         os.system("clear")
         quit()
+
+def createimage(title, text, date_formatted, date):
+    # Create a new image with the desired dimensions and color
+    image = Image.new('RGB', (1080, 1920), '#EFEFEF')
+    draw = ImageDraw.Draw(image)
+
+    # Open the logo image and paste it at the top, centered and with a top margin of 50px
+    logoimagepath = "/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/src/Logo.jpeg"  # replace with your logo image path
+    logosize = 400
+    logo = Image.open(logoimagepath).resize((logosize, logosize))
+    logo_position = ((image.width - logosize) // 2, 100)  # centering the resized logo and adding 50px top margin
+    image.paste(logo, logo_position)
+
+
+    # Set the fonts. You may need to adjust the paths to the fonts, sizes, and styles according to your needs
+    font_big = ImageFont.truetype('/System/Library/Fonts/Supplemental/AmericanTypewriter.ttc', 80)  # for macOS, the default Arial font path
+    font_small = ImageFont.truetype('/System/Library/Fonts/Supplemental/AmericanTypewriter.ttc', 35)  # adjust the size as needed
+
+    # Define the text and its properties
+    text_big = title
+    text_small1 = text
+    text_small2 = date_formatted
+
+    headerwords = text_big.split(" ")
+    headerlines = [""] * 20
+    templine = ""
+    linelength = 19
+    linecounter = 0
+
+    for word in headerwords:
+        if(templine != ""):
+            if(len(templine) + len(word) <= linelength):
+                templine = templine + " " + word
+            else:
+                headerlines[linecounter] = templine
+                linecounter = linecounter + 1
+                templine = word
+        else:
+            templine = templine + " " + word
+    
+    headerlines[linecounter] = templine
+    linecounter = linecounter + 1
+
+    # Calculate text sizes using 'textbox' function
+    width_big1, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[0], font=font_big)[2:]
+    width_big2, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[1], font=font_big)[2:]
+    width_big3, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[2], font=font_big)[2:]
+    width_big4, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[3], font=font_big)[2:]
+    width_big5, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[4], font=font_big)[2:]
+    width_big6, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[5], font=font_big)[2:]
+    width_big7, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[6], font=font_big)[2:]
+    width_big8, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[7], font=font_big)[2:]
+    width_big9, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[8], font=font_big)[2:]
+    width_big10, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[9], font=font_big)[2:]
+    width_small1, height_small1 = draw.textbbox((0, 0, image.width, image.height), text_small1, font=font_small)[2:]
+    width_small2, height_small2 = draw.textbbox((0, 0, image.width, image.height), text_small2, font=font_small)[2:]
+
+    # Draw the text on the image. You may need to adjust the positions according to your needs
+    padding = 50
+    spacer = 10
+
+    draw.text(((1080 - width_big1) / 2, logo_position[1] + logosize + padding * 4), headerlines[0], fill="black", font=font_big)
+    draw.text(((1080 - width_big2) / 2, logo_position[1] + logosize + padding * 5 + spacer), headerlines[1], fill="black", font=font_big)
+    draw.text(((1080 - width_big3) / 2, logo_position[1] + logosize + padding * 6 + spacer * 2), headerlines[2], fill="black", font=font_big)
+    draw.text(((1080 - width_big4) / 2, logo_position[1] + logosize + padding * 7 + spacer * 3), headerlines[3], fill="black", font=font_big)
+    draw.text(((1080 - width_big5) / 2, logo_position[1] + logosize + padding * 8 + spacer * 4), headerlines[4], fill="black", font=font_big) 
+    draw.text(((1080 - width_big6) / 2, logo_position[1] + logosize + padding * 9 + spacer * 5), headerlines[5], fill="black", font=font_big) 
+    draw.text(((1080 - width_big7) / 2, logo_position[1] + logosize + padding * 10 + spacer * 6), headerlines[6], fill="black", font=font_big) 
+    draw.text(((1080 - width_big8) / 2, logo_position[1] + logosize + padding * 11 + spacer * 7), headerlines[7], fill="black", font=font_big) 
+    draw.text(((1080 - width_big9) / 2, logo_position[1] + logosize + padding * 12 + spacer * 8), headerlines[8], fill="black", font=font_big) 
+    draw.text(((1080 - width_big10) / 2, logo_position[1] + logosize + padding * 13 + spacer * 9), headerlines[9], fill="black", font=font_big)
+
+    draw.text(((1080 - width_small1) / 2, image.height - height_small2 - 2 * padding * 2), text_small1, fill="black", font=font_small)
+    draw.text(((1080 - width_small2) / 2, image.height - height_small2 - padding * 2), text_small2, fill="black", font=font_small)
+
+    # Save the image to the disk
+    image.save('/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/social/images/' + date + '.jpg', 'JPEG')
 
 main()
