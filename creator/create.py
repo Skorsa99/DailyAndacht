@@ -263,7 +263,7 @@ def createimage(title, text, date_formatted, date):
 
     # Draw the text on the image. You may need to adjust the positions according to your needs
     padding = 50
-    spacer = 15
+    spacer = 20
 
     draw.text(((1080 - width_big1) / 2, logo_position[1] + logosize + padding * 4), headerlines[0], fill="black", font=font_big)
     draw.text(((1080 - width_big2) / 2, logo_position[1] + logosize + padding * 5 + spacer), headerlines[1], fill="black", font=font_big)
