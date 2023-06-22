@@ -214,7 +214,7 @@ def createimage(title, text, date_formatted, date):
     logoimagepath = "/Users/samuelskorsetz/Documents/Freizeit/Coding/DailyAndacht/src/Logo.jpeg"  # replace with your logo image path
     logosize = 400
     logo = Image.open(logoimagepath).resize((logosize, logosize))
-    logo_position = ((image.width - logosize) // 2, 100)  # centering the resized logo and adding 50px top margin
+    logo_position = ((image.width - logosize) // 2, 200)  # centering the resized logo and adding 50px top margin
     image.paste(logo, logo_position)
 
 
@@ -260,6 +260,7 @@ def createimage(title, text, date_formatted, date):
     width_big10, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[9], font=font_big)[2:]
     width_small1, height_small1 = draw.textbbox((0, 0, image.width, image.height), text_small1, font=font_small)[2:]
     width_small2, height_small2 = draw.textbbox((0, 0, image.width, image.height), text_small2, font=font_small)[2:]
+    width_small3, height_small2 = draw.textbbox((0, 0, image.width, image.height), "--hier klicken um zu öffnen--", font=font_small)[2:]
 
     # Draw the text on the image. You may need to adjust the positions according to your needs
     padding = 50
@@ -271,10 +272,7 @@ def createimage(title, text, date_formatted, date):
     draw.text(((1080 - width_big4) / 2, logo_position[1] + logosize + padding * 7 + spacer * 3), headerlines[3], fill="black", font=font_big)
     draw.text(((1080 - width_big5) / 2, logo_position[1] + logosize + padding * 8 + spacer * 4), headerlines[4], fill="black", font=font_big) 
     draw.text(((1080 - width_big6) / 2, logo_position[1] + logosize + padding * 9 + spacer * 5), headerlines[5], fill="black", font=font_big) 
-    draw.text(((1080 - width_big7) / 2, logo_position[1] + logosize + padding * 10 + spacer * 6), headerlines[6], fill="black", font=font_big) 
-    draw.text(((1080 - width_big8) / 2, logo_position[1] + logosize + padding * 11 + spacer * 7), headerlines[7], fill="black", font=font_big) 
-    draw.text(((1080 - width_big9) / 2, logo_position[1] + logosize + padding * 12 + spacer * 8), headerlines[8], fill="black", font=font_big) 
-    draw.text(((1080 - width_big10) / 2, logo_position[1] + logosize + padding * 13 + spacer * 9), headerlines[9], fill="black", font=font_big)
+    draw.text(((1080 - width_small3) / 2, logo_position[1] + logosize + padding * 10 + spacer * 6), "--hier klicken um zu öffnen--", fill="black", font=font_small)
 
     draw.text(((1080 - width_small1) / 2, image.height - height_small2 - 2 * padding * 2), text_small1, fill="black", font=font_small)
     draw.text(((1080 - width_small2) / 2, image.height - height_small2 - padding * 2), text_small2, fill="black", font=font_small)
