@@ -247,6 +247,8 @@ def createimage(title, text, date_formatted, date):
     headerlines[linecounter] = templine
     linecounter = linecounter + 1
 
+    clickstring = "--titel klicken um zu öffnen--"
+
     # Calculate text sizes using 'textbox' function
     width_big1, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[0], font=font_big)[2:]
     width_big2, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[1], font=font_big)[2:]
@@ -260,7 +262,7 @@ def createimage(title, text, date_formatted, date):
     width_big10, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[9], font=font_big)[2:]
     width_small1, height_small1 = draw.textbbox((0, 0, image.width, image.height), text_small1, font=font_small)[2:]
     width_small2, height_small2 = draw.textbbox((0, 0, image.width, image.height), text_small2, font=font_small)[2:]
-    width_small3, height_small2 = draw.textbbox((0, 0, image.width, image.height), "--hier klicken um zu öffnen--", font=font_small)[2:]
+    width_small3, height_small2 = draw.textbbox((0, 0, image.width, image.height), clickstring, font=font_small)[2:]
 
     # Draw the text on the image. You may need to adjust the positions according to your needs
     padding = 50
@@ -272,7 +274,7 @@ def createimage(title, text, date_formatted, date):
     draw.text(((1080 - width_big4) / 2, logo_position[1] + logosize + padding * 7 + spacer * 3), headerlines[3], fill="black", font=font_big)
     draw.text(((1080 - width_big5) / 2, logo_position[1] + logosize + padding * 8 + spacer * 4), headerlines[4], fill="black", font=font_big) 
     draw.text(((1080 - width_big6) / 2, logo_position[1] + logosize + padding * 9 + spacer * 5), headerlines[5], fill="black", font=font_big) 
-    draw.text(((1080 - width_small3) / 2, logo_position[1] + logosize + padding * 10 + spacer * 6), "--hier klicken um zu öffnen--", fill="black", font=font_small)
+    draw.text(((1080 - width_small3) / 2, logo_position[1] + logosize + padding * 10 + spacer * 6), clickstring, fill="black", font=font_small)
 
     draw.text(((1080 - width_small1) / 2, image.height - height_small2 - 2 * padding * 2), text_small1, fill="black", font=font_small)
     draw.text(((1080 - width_small2) / 2, image.height - height_small2 - padding * 2), text_small2, fill="black", font=font_small)
