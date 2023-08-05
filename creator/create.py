@@ -248,7 +248,7 @@ def createimage(title, text, date_formatted, date):
     linecounter = linecounter + 1
 
     # clickstring = "--titel klicken um zu öffnen--"
-    clickstring = "jetzt aud www.dailyandacht.de"
+    clickstring = "jetzt auf www.dailyandacht.de"
 
     # Calculate text sizes using 'textbox' function
     width_big1, height_big = draw.textbbox((0, 0, image.width, image.height), headerlines[0], font=font_big)[2:]
