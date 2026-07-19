@@ -9,12 +9,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
-from flask import Flask, jsonify, redirect, render_template, request
+from flask import Flask, abort, jsonify, redirect, render_template, request, send_file
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ANDACHTEN_DIR = BASE_DIR / "andachten"
 FILES_DIR = ANDACHTEN_DIR / "files"
 DB_PATH = ANDACHTEN_DIR / "overview.sqlite"
+LOGO_PATH = BASE_DIR / "src" / "logos" / "light.jpeg"
 
 OLLAMA_HOST = "http://localhost:11434"
 DEFAULT_AUTHOR = "DailyAndacht Team"
@@ -212,6 +213,40 @@ def manual_page():
 @app.route("/assisted")
 def assisted_page():
     return render_template("assisted.html", default_author=DEFAULT_AUTHOR)
+
+
+@app.route("/image")
+def image_page():
+    return render_template("image.html")
+
+
+@app.route("/assets/logo.jpeg")
+def asset_logo():
+    return send_file(LOGO_PATH)
+
+
+@app.route("/api/sermons")
+def api_sermons():
+    conn = sqlite3.connect(DB_PATH)
+    rows = conn.execute(
+        "SELECT id, date, title, author, read_time_minutes FROM sermons "
+        "ORDER BY date DESC, created_at DESC"
+    ).fetchall()
+    conn.close()
+    sermons = [
+        {"id": r[0], "date": r[1], "title": r[2], "author": r[3], "read_time_minutes": r[4]}
+        for r in rows
+    ]
+    return jsonify({"ok": True, "sermons": sermons})
+
+
+@app.route("/api/sermon/<sermon_id>")
+def api_sermon(sermon_id):
+    file_path = (FILES_DIR / f"{sermon_id}.json").resolve()
+    # Guard against path traversal: the resolved file must live inside FILES_DIR.
+    if FILES_DIR.resolve() not in file_path.parents or not file_path.is_file():
+        abort(404)
+    return jsonify({"ok": True, "sermon": json.loads(file_path.read_text(encoding="utf-8"))})
 
 
 @app.route("/manual/save", methods=["POST"])
