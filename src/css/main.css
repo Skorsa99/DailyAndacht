@@ -1,0 +1,12 @@
+:root {
+    --primary-color: #1A1D1E;
+
+    --secondary-color: #EFEFEF;
+
+    --font: Courier;
+}
+
+body {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
