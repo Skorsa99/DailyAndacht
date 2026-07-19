@@ -326,24 +326,60 @@ def image_card(sermon_id):
     )
 
 
-@app.route("/image/render/<sermon_id>.png")
-def image_render(sermon_id):
-    """Render the promo card to a 1080x1920 PNG using headless Chrome, so the
-    exported image matches the reader's typography exactly (kerning, drop cap,
-    fonts) instead of an html2canvas approximation."""
-    if load_sermon_file(sermon_id) is None:
-        abort(404)
+# A 360x640 CSS viewport rendered at 3x device pixels -> a 1080x1920 PNG.
+CARD_W, CARD_H, CARD_SCALE = 360, 640, 3
 
+
+def render_with_playwright(url):
+    """Render the card with Playwright's bundled browser engine. Needs no
+    system-wide browser install (works on a Safari-only Mac); the user just runs
+    `playwright install webkit` once. Returns PNG bytes, or None if Playwright or
+    its browsers aren't available."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        return None
+
+    try:
+        with sync_playwright() as p:
+            # Try each installed engine; WebKit is Safari's engine and the
+            # smallest download, so it's listed first.
+            last_err = None
+            for engine_name in ("webkit", "chromium", "firefox"):
+                engine = getattr(p, engine_name)
+                try:
+                    browser = engine.launch()
+                except Exception as e:  # engine not installed / failed to launch
+                    last_err = e
+                    continue
+                try:
+                    page = browser.new_page(
+                        viewport={"width": CARD_W, "height": CARD_H},
+                        device_scale_factor=CARD_SCALE,
+                    )
+                    page.goto(url, wait_until="networkidle", timeout=30000)
+                    try:
+                        page.evaluate("document.fonts && document.fonts.ready")
+                    except Exception:
+                        pass
+                    page.wait_for_timeout(300)  # let webfonts paint
+                    return page.screenshot()
+                finally:
+                    browser.close()
+            if last_err:
+                print(f"[image] Playwright hat keine Browser gefunden: {last_err}")
+            return None
+    except Exception as e:
+        print(f"[image] Playwright-Rendern fehlgeschlagen: {e}")
+        return None
+
+
+def render_with_system_chrome(url):
+    """Fallback: screenshot with a system Chrome/Chromium/Edge if one exists.
+    Returns PNG bytes, or None if no such browser is installed."""
     chrome = find_chrome()
     if not chrome:
-        return jsonify({
-            "ok": False,
-            "error": "Kein Chrome/Chromium gefunden, um das Bild zu rendern.",
-        }), 500
-
-    port = app.config.get("PORT", 5050)
-    url = f"http://127.0.0.1:{port}/image/card/{sermon_id}"
-
+        return None
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp) / "promo.png"
         try:
@@ -354,9 +390,9 @@ def image_render(sermon_id):
                     "--disable-gpu",
                     "--no-sandbox",
                     "--hide-scrollbars",
-                    "--force-device-scale-factor=3",  # 360x640 viewport -> 1080x1920 PNG
-                    "--window-size=360,640",
-                    "--virtual-time-budget=8000",     # wait for webfonts + logo
+                    f"--force-device-scale-factor={CARD_SCALE}",
+                    f"--window-size={CARD_W},{CARD_H}",
+                    "--virtual-time-budget=8000",  # wait for webfonts + logo
                     f"--screenshot={out}",
                     url,
                 ],
@@ -365,11 +401,32 @@ def image_render(sermon_id):
                 stderr=subprocess.DEVNULL,
             )
         except (subprocess.SubprocessError, OSError) as e:
-            return jsonify({"ok": False, "error": f"Rendern fehlgeschlagen: {e}"}), 500
+            print(f"[image] Chrome-Rendern fehlgeschlagen: {e}")
+            return None
+        return out.read_bytes() if out.is_file() else None
 
-        if not out.is_file():
-            return jsonify({"ok": False, "error": "Chrome hat kein Bild erzeugt."}), 500
-        data = out.read_bytes()
+
+@app.route("/image/render/<sermon_id>.png")
+def image_render(sermon_id):
+    """Render the promo card to a 1080x1920 PNG using a real browser engine, so
+    the exported image matches the reader's typography exactly (kerning, drop
+    cap, fonts). Prefers Playwright's bundled engine (no system browser needed);
+    falls back to a system Chrome/Chromium if present."""
+    if load_sermon_file(sermon_id) is None:
+        abort(404)
+
+    port = app.config.get("PORT", 5050)
+    url = f"http://127.0.0.1:{port}/image/card/{sermon_id}"
+
+    data = render_with_playwright(url) or render_with_system_chrome(url)
+    if data is None:
+        return jsonify({
+            "ok": False,
+            "error": (
+                "Kein Renderer verfügbar. Einmalig einrichten mit: "
+                "pip install playwright && playwright install webkit"
+            ),
+        }), 500
 
     return Response(
         data,

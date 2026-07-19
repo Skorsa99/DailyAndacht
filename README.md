@@ -14,6 +14,8 @@ src/
     templates/
       manual.html       # manual authoring form
       assisted.html      # AI-assisted authoring form (via local Ollama)
+      image.html         # promo-image page (pick a sermon -> 9:16 preview + PNG)
+      card.html          # the bare 9:16 promo card that gets rendered to PNG
   css/main.css          # shared site styles
   logos/                # logo assets
 index.html               # public reader page (not yet implemented — see below)
@@ -49,7 +51,12 @@ The authoring tool runs locally and opens a small web form in your browser. It's
 1. Install dependencies once (uses the project's `.venv`):
    ```
    ./.venv/bin/pip install -r requirements.txt
+   ./.venv/bin/playwright install webkit
    ```
+   The second command downloads a small (~80 MB) headless browser engine used
+   only to render promo images (see "Promo images" below). It needs no
+   system-wide browser — Safari-only machines work fine. You can skip it if you
+   don't need the image feature; the rest of the tool still works.
 2. Start the tool in whichever mode you want:
    ```
    ./.venv/bin/python src/creator/create_sermon.py -manual
@@ -70,6 +77,20 @@ Describe a topic and any notes/quotes/points to include, pick an installed Ollam
 Once you're happy with it, save it the same way as the manual flow.
 
 Requires [Ollama](https://ollama.com) running locally with at least one model pulled (e.g. `ollama pull llama3`).
+
+### Promo images ("Bild erstellen")
+
+The `/image` page lists every sermon from `overview.sqlite`. Pick one and a
+9:16 promo card (logo, date, read time, title, Bible verse, and a body teaser
+that fades into the paper) renders live in the reader's own typography. From
+there you can **download it as a 1080×1920 PNG** or **open it in a new tab**.
+
+Nothing is stored on disk — each image is rendered on demand and streamed. The
+live preview needs no special setup (it's just an iframe), but the PNG export
+renders the card with a real browser engine. It uses Playwright's bundled engine
+(`playwright install webkit`, see setup above); if that isn't installed it falls
+back to a system Chrome/Chromium/Edge, and if neither is available it returns a
+clear error explaining the one-time setup command.
 
 ## Public reader site
 
