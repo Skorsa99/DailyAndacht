@@ -38,7 +38,14 @@
         </header>
 
         <section class="backlog reveal" style="--i:2">
-            <div class="monthnav">
+            <div class="searchbar" id="searchbar">
+                <input class="searchbar__input" id="search" type="search"
+                       placeholder="Andachten durchsuchen…" autocomplete="off"
+                       aria-label="Andachten nach Titel durchsuchen">
+                <span class="searchbar__icon">&#128269;</span>
+                <button class="searchbar__clear" id="searchClear" type="button" aria-label="Suche löschen">&times;</button>
+            </div>
+            <div class="monthnav" id="monthnav">
                 <button class="navbtn" id="prev" type="button" aria-label="Vorheriger Monat" disabled>&#8249;</button>
                 <div class="monthnav__title" id="monthTitle">&#8230;</div>
                 <button class="navbtn" id="next" type="button" aria-label="Nächster Monat" disabled>&#8250;</button>
@@ -56,9 +63,14 @@
             var titleEl = document.getElementById("monthTitle");
             var prevBtn = document.getElementById("prev");
             var nextBtn = document.getElementById("next");
+            var monthnavEl = document.getElementById("monthnav");
+            var searchbarEl = document.getElementById("searchbar");
+            var searchInput = document.getElementById("search");
+            var searchClear = document.getElementById("searchClear");
 
-            var months = [];   // available "YYYY-MM", ascending
-            var index = 0;     // pointer into months
+            var months = [];      // available "YYYY-MM", ascending
+            var index = 0;        // pointer into months
+            var everySermon = []; // all sermons, fetched once, for search
 
             function esc(s) {
                 return String(s == null ? "" : s)
@@ -67,6 +79,25 @@
 
             function dayNumber(iso) { return DA.parseISO(iso).getDate(); }
             function dayLabel(iso)  { return DA.WEEKDAYS_DE[DA.parseISO(iso).getDay()].slice(0, 2); }
+            function monthLabel(iso) {
+                var d = DA.parseISO(iso);
+                return DA.MONTHS_DE[d.getMonth()].slice(0, 3) + " " + String(d.getFullYear()).slice(2);
+            }
+
+            /* flat=true shows month+year under the day (search results can span
+               multiple months); flat=false shows the weekday (single month). */
+            function cardsHTML(rows, flat) {
+                return '<div class="cards">' + rows.map(function (r) {
+                    var read = r.read_time_minutes ? esc(r.read_time_minutes) + " Min." : "";
+                    var sub = flat ? monthLabel(r.date) : dayLabel(r.date);
+                    return '<a class="card" href="./index.html?id=' + encodeURIComponent(r.id) + '">' +
+                        '<span class="card__day' + (flat ? " card__day--flat" : "") + '">' + dayNumber(r.date) +
+                            '<small>' + esc(sub) + '</small></span>' +
+                        '<span class="card__title">' + esc(r.title) + '</span>' +
+                        (read ? '<span class="card__read">' + read + '</span>' : '') +
+                    '</a>';
+                }).join("") + '</div>';
+            }
 
             function renderMonth(db) {
                 var ym = months[index];
@@ -75,30 +106,41 @@
                 nextBtn.disabled = (index >= months.length - 1);
 
                 var rows = DA.sermonsInMonth(db, ym);
-                if (!rows.length) {
-                    stage.innerHTML = '<div class="state">Keine Andachten in diesem Monat.</div>';
-                    return;
-                }
+                stage.innerHTML = rows.length
+                    ? cardsHTML(rows, false)
+                    : '<div class="state">Keine Andachten in diesem Monat.</div>';
+            }
 
-                var items = rows.map(function (r) {
-                    var read = r.read_time_minutes ? esc(r.read_time_minutes) + " Min." : "";
-                    return '<a class="card" href="./index.html?id=' + encodeURIComponent(r.id) + '">' +
-                        '<span class="card__day">' + dayNumber(r.date) +
-                            '<small>' + esc(dayLabel(r.date)) + '</small></span>' +
-                        '<span class="card__title">' + esc(r.title) + '</span>' +
-                        (read ? '<span class="card__read">' + read + '</span>' : '') +
-                    '</a>';
-                }).join("");
+            function renderSearch(q) {
+                var needle = q.toLocaleLowerCase("de");
+                var rows = everySermon.filter(function (r) {
+                    return r.title.toLocaleLowerCase("de").indexOf(needle) !== -1;
+                });
 
-                stage.innerHTML = '<div class="cards">' + items + '</div>';
+                var heading = '<p class="searchresults__heading">' +
+                    (rows.length
+                        ? rows.length + (rows.length === 1 ? " Andacht" : " Andachten") + " gefunden"
+                        : "Keine Andacht gefunden") +
+                    '</p>';
+
+                stage.innerHTML = heading + (rows.length
+                    ? cardsHTML(rows, true)
+                    : '<div class="state">Versuche es mit einem anderen Suchbegriff.</div>');
+            }
+
+            function setSearchMode(active) {
+                monthnavEl.hidden = active;
             }
 
             function boot() {
                 DA.openDB().then(function (db) {
                     months = DA.availableMonths(db);
+                    everySermon = DA.allSermons(db);
+
                     if (!months.length) {
                         titleEl.textContent = "Back-Log";
                         stage.innerHTML = '<div class="state">Noch keine Andachten vorhanden.</div>';
+                        searchInput.disabled = true;
                         return;
                     }
 
@@ -114,6 +156,26 @@
                         if (index < months.length - 1) { index++; renderMonth(db); }
                     });
 
+                    searchInput.addEventListener("input", function () {
+                        var q = searchInput.value.trim();
+                        searchbarEl.classList.toggle("has-query", q.length > 0);
+                        if (q) {
+                            setSearchMode(true);
+                            renderSearch(q);
+                        } else {
+                            setSearchMode(false);
+                            renderMonth(db);
+                        }
+                    });
+
+                    searchClear.addEventListener("click", function () {
+                        searchInput.value = "";
+                        searchbarEl.classList.remove("has-query");
+                        setSearchMode(false);
+                        renderMonth(db);
+                        searchInput.focus();
+                    });
+
                     renderMonth(db);
                 }).catch(function (err) {
                     console.error(err);
@@ -122,6 +184,7 @@
                         '<div class="state state--error">' +
                         '<span class="state__title">Etwas ist schiefgelaufen</span>' +
                         "Das Back-Log konnte nicht geladen werden. Bitte lade die Seite neu.</div>";
+                    searchInput.disabled = true;
                 });
             }
 

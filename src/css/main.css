@@ -15,6 +15,19 @@
     --ink-mute:   #7B7E7E;   /* meta, labels */
     --accent:     #8C6A34;   /* antique gold — used sparingly */
     --accent-lo:  #A98A4B;
+    
+    --paper:      #EFEFEF;
+    --paper-sink: #E7E7E5;   /* very slightly recessed panels / hover */
+    --ink:        #1A1D1E;
+    --ink-soft:   #43464A;   /* body-adjacent, prayer */
+    --ink-mute:   #7B7E7E;   /* meta, labels */
+    --accent:     #8C6A34;   /* antique gold — used sparingly */
+    --accent-lo:  #A98A4B;
+
+
+
+
+
     --rule:       rgba(26, 29, 30, 0.16);
     --rule-soft:  rgba(26, 29, 30, 0.08);
 
@@ -22,7 +35,7 @@
     --serif-body:    "Spectral", Georgia, serif;
     --mono:          "Courier Prime", "Courier New", monospace;
 
-    --measure: 40rem;            /* comfortable reading width */
+    --measure: 54rem;            /* comfortable reading width */
     --shadow-lift: 0 1px 2px rgba(26,29,30,.05), 0 14px 34px rgba(26,29,30,.09);
 }
 
@@ -320,6 +333,91 @@ a { color: inherit; }
    ========================================================================== */
 .backlog { margin-top: clamp(2.5rem, 6vw, 3.75rem); }
 
+.searchbar {
+    position: relative;
+    margin: 0 0 clamp(1.75rem, 5vw, 2.75rem);
+}
+
+.searchbar__input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 1.05rem;
+    padding: .6rem 1.6rem .6rem .1rem;
+    transition: border-color .25s ease;
+}
+
+.searchbar__input::-webkit-search-cancel-button,
+.searchbar__input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+}
+
+.searchbar__input::placeholder {
+    color: var(--ink-mute);
+    opacity: 1;
+}
+
+.searchbar__input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.searchbar__icon {
+    position: absolute;
+    right: .1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-mute);
+    font-size: .95rem;
+    pointer-events: none;
+}
+
+.searchbar__clear {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: none;
+    color: var(--ink-mute);
+    font-family: var(--serif-body);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: .25rem;
+    display: none;
+    transition: color .2s ease;
+}
+
+.searchbar__clear:hover { color: var(--accent); }
+
+.searchbar.has-query .searchbar__icon { display: none; }
+.searchbar.has-query .searchbar__clear { display: block; }
+
+.searchresults__heading {
+    margin: 0 0 1rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+}
+
+.card__day--flat {
+    font-size: 1.5rem;
+}
+
 .monthnav {
     display: flex;
     align-items: center;
@@ -327,6 +425,8 @@ a { color: inherit; }
     gap: clamp(1rem, 4vw, 2rem);
     margin-bottom: clamp(1.75rem, 5vw, 2.75rem);
 }
+
+.monthnav[hidden] { display: none; }
 
 .monthnav__title {
     min-width: 8.5em;

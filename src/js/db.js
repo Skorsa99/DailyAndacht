@@ -137,6 +137,14 @@
             { $s: start, $e: isoDate(next) });
     }
 
+    /* Every sermon, newest first — small enough to fetch once and filter
+       (e.g. for title search) entirely in JS. */
+    function allSermons(db) {
+        return query(db,
+            "SELECT id, date, title, author, read_time_minutes FROM sermons " +
+            "ORDER BY date DESC, created_at DESC");
+    }
+
     global.DA = {
         openDB: openDB,
         query: query,
@@ -151,6 +159,7 @@
         idByDate: idByDate,
         existsId: existsId,
         availableMonths: availableMonths,
-        sermonsInMonth: sermonsInMonth
+        sermonsInMonth: sermonsInMonth,
+        allSermons: allSermons
     };
 })(window);
