@@ -1,15 +1,20 @@
 import argparse
 import json
 import math
+import re
+import shutil
 import sqlite3
+import subprocess
+import tempfile
 import threading
 import uuid
 import webbrowser
+from datetime import date as date_cls
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
-from flask import Flask, abort, jsonify, redirect, render_template, request, send_file
+from flask import Flask, Response, abort, jsonify, redirect, render_template, request, send_file
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ANDACHTEN_DIR = BASE_DIR / "andachten"
@@ -24,7 +29,40 @@ WORDS_PER_MINUTE = 200
 REQUIRED_SERMON_FIELDS = ["title", "bible_verse", "body", "prayer"]
 REQUIRED_DRAFT_FIELDS = ["title", "bible_verse", "body", "prayer", "activity"]
 
+# German date labels for the promo card (weekday list is Monday-first to match
+# datetime.date.weekday()).
+MONTHS_DE = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember",
+]
+WEEKDAYS_DE = [
+    "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag",
+]
+
+# Candidate paths for a headless Chrome/Chromium used to render promo images.
+CHROME_CANDIDATES = [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "google-chrome",
+    "chromium",
+    "chromium-browser",
+    "chrome",
+]
+
 app = Flask(__name__)
+
+
+def find_chrome():
+    for cand in CHROME_CANDIDATES:
+        if "/" in cand:
+            if Path(cand).is_file():
+                return cand
+        else:
+            found = shutil.which(cand)
+            if found:
+                return found
+    return None
 
 
 def init_db():
@@ -240,13 +278,104 @@ def api_sermons():
     return jsonify({"ok": True, "sermons": sermons})
 
 
-@app.route("/api/sermon/<sermon_id>")
-def api_sermon(sermon_id):
+def load_sermon_file(sermon_id):
+    """Return a sermon's JSON dict, or None if the id is unknown / unsafe."""
     file_path = (FILES_DIR / f"{sermon_id}.json").resolve()
     # Guard against path traversal: the resolved file must live inside FILES_DIR.
     if FILES_DIR.resolve() not in file_path.parents or not file_path.is_file():
+        return None
+    return json.loads(file_path.read_text(encoding="utf-8"))
+
+
+@app.route("/api/sermon/<sermon_id>")
+def api_sermon(sermon_id):
+    sermon = load_sermon_file(sermon_id)
+    if sermon is None:
         abort(404)
-    return jsonify({"ok": True, "sermon": json.loads(file_path.read_text(encoding="utf-8"))})
+    return jsonify({"ok": True, "sermon": sermon})
+
+
+@app.route("/image/card/<sermon_id>")
+def image_card(sermon_id):
+    """The bare 9:16 promo card (used both for the on-page preview iframe and as
+    the target that headless Chrome screenshots)."""
+    sermon = load_sermon_file(sermon_id)
+    if sermon is None:
+        abort(404)
+
+    iso = str(sermon.get("date", ""))
+    weekday = date_long = ""
+    try:
+        y, m, d = (int(x) for x in iso.split("-"))
+        dt = date_cls(y, m, d)
+        weekday = WEEKDAYS_DE[dt.weekday()]
+        date_long = f"{d}. {MONTHS_DE[m - 1]} {y}"
+    except (ValueError, IndexError):
+        date_long = iso
+
+    paragraphs = [p.strip() for p in re.split(r"\n+", sermon.get("body", "")) if p.strip()]
+
+    return render_template(
+        "card.html",
+        title=sermon.get("title", ""),
+        bible_verse=str(sermon.get("bible_verse", "")).strip(),
+        weekday=weekday,
+        date_long=date_long,
+        read_time=sermon.get("read_time_minutes"),
+        paragraphs=paragraphs,
+    )
+
+
+@app.route("/image/render/<sermon_id>.png")
+def image_render(sermon_id):
+    """Render the promo card to a 1080x1920 PNG using headless Chrome, so the
+    exported image matches the reader's typography exactly (kerning, drop cap,
+    fonts) instead of an html2canvas approximation."""
+    if load_sermon_file(sermon_id) is None:
+        abort(404)
+
+    chrome = find_chrome()
+    if not chrome:
+        return jsonify({
+            "ok": False,
+            "error": "Kein Chrome/Chromium gefunden, um das Bild zu rendern.",
+        }), 500
+
+    port = app.config.get("PORT", 5050)
+    url = f"http://127.0.0.1:{port}/image/card/{sermon_id}"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "promo.png"
+        try:
+            subprocess.run(
+                [
+                    chrome,
+                    "--headless",
+                    "--disable-gpu",
+                    "--no-sandbox",
+                    "--hide-scrollbars",
+                    "--force-device-scale-factor=3",  # 360x640 viewport -> 1080x1920 PNG
+                    "--window-size=360,640",
+                    "--virtual-time-budget=8000",     # wait for webfonts + logo
+                    f"--screenshot={out}",
+                    url,
+                ],
+                timeout=60,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except (subprocess.SubprocessError, OSError) as e:
+            return jsonify({"ok": False, "error": f"Rendern fehlgeschlagen: {e}"}), 500
+
+        if not out.is_file():
+            return jsonify({"ok": False, "error": "Chrome hat kein Bild erzeugt."}), 500
+        data = out.read_bytes()
+
+    return Response(
+        data,
+        mimetype="image/png",
+        headers={"Content-Disposition": f'inline; filename="dailyandacht-{sermon_id}.png"'},
+    )
 
 
 @app.route("/manual/save", methods=["POST"])
@@ -347,11 +476,14 @@ def main():
     args = parser.parse_args()
 
     app.config["DEFAULT_MODE"] = "manual" if args.manual else "assisted"
+    app.config["PORT"] = args.port
     url = f"http://127.0.0.1:{args.port}/"
 
     print(f"Starting DailyAndacht creator at {url}")
     threading.Timer(1.0, lambda: webbrowser.open(url)).start()
-    app.run(port=args.port, debug=False)
+    # threaded=True so /image/render can call back into this server (headless
+    # Chrome fetching /image/card) without deadlocking the single worker.
+    app.run(port=args.port, debug=False, threaded=True)
 
 
 init_db()
