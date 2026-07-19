@@ -1,24 +1,176 @@
 <!DOCTYPE html>
 <html lang="de">
-    <head>
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XR8059THL2"></script>
-        <script>
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XR8059THL2"></script>
+    <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-XR8059THL2');
-        </script>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>DailyAndacht</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="./src/css/main.css">
-        <link rel="icon" href="./src/Logo.jpeg" style="border-radius: 50%;">
-    </head>
-    <body>
-        
-    </body>
+    </script>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyAndacht</title>
+    <meta name="description" content="DailyAndacht — eine tägliche christliche Andacht zum Innehalten, Nachdenken und Beten.">
+
+    <link rel="icon" href="./src/logos/light.jpeg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/css/main.css">
+</head>
+<body>
+    <main class="page">
+        <nav class="topbar reveal" style="--i:0">
+            <a href="./index.html">Aktuelle&nbsp;Andacht</a>
+            <span class="spacer"></span>
+            <a href="./backlog.html">Back&#8209;Log</a>
+        </nav>
+
+        <header class="masthead reveal" style="--i:1">
+            <a class="brand" href="./index.html" aria-label="Zur aktuellen Andacht">
+                <img class="brand__mark" src="./src/logos/light.jpeg" alt="DailyAndacht" width="82" height="82">
+                <span class="brand__word">DailyAndacht</span>
+            </a>
+        </header>
+
+        <div id="stage"></div>
+    </main>
+
+    <script src="./src/js/db.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            var stage = document.getElementById("stage");
+
+            function esc(s) {
+                return String(s == null ? "" : s)
+                    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            }
+
+            /* Split a text field into paragraph <p> elements on blank / single
+               line breaks, keeping only non-empty pieces. */
+            function paragraphs(text) {
+                return String(text || "")
+                    .split(/\n{1,}/)
+                    .map(function (p) { return p.trim(); })
+                    .filter(Boolean)
+                    .map(function (p) { return "<p>" + esc(p) + "</p>"; })
+                    .join("");
+            }
+
+            function showState(html, isError) {
+                stage.innerHTML = '<div class="state ' + (isError ? "state--error" : "") +
+                    ' reveal">' + html + "</div>";
+            }
+
+            function render(a) {
+                var readTime = a.read_time_minutes
+                    ? esc(a.read_time_minutes) + " Min. Lesezeit" : "";
+                var meta = [DA.weekday(a.date), DA.formatDateLong(a.date), readTime]
+                    .filter(Boolean)
+                    .join('<span class="dot">&#9670;</span>');
+
+                var activity = (a.activity || "").trim();
+
+                var html =
+                    '<article class="article">' +
+                        '<p class="meta reveal" style="--i:2">' + meta + '</p>' +
+                        '<h1 class="title reveal" style="--i:3">' + esc(a.title) + '</h1>';
+
+                if ((a.bible_verse || "").trim()) {
+                    html +=
+                        '<div class="scripture reveal" style="--i:4">' +
+                            '<span class="scripture__label">Bibeltext</span>' +
+                            '<span class="scripture__ref">' + esc(a.bible_verse.trim()) + '</span>' +
+                        '</div>';
+                }
+
+                html += '<div class="body reveal" style="--i:5">' + paragraphs(a.body) + '</div>';
+
+                html +=
+                    '<section class="movement reveal" style="--i:6">' +
+                        '<div class="ornament"><span class="ornament__glyph">&#10086;</span></div>' +
+                        '<p class="label">Gebet</p>' +
+                        '<div class="prayer">' + paragraphs(a.prayer) + '</div>' +
+                    '</section>';
+
+                if (activity) {
+                    html +=
+                        '<section class="movement reveal" style="--i:7">' +
+                            '<div class="ornament"><span class="ornament__glyph">&#10086;</span></div>' +
+                            '<p class="label">Aktivität</p>' +
+                            '<div class="activity">' + paragraphs(activity) + '</div>' +
+                        '</section>';
+                }
+
+                html +=
+                    '<footer class="colophon reveal" style="--i:8">' +
+                        (a.author ? esc(a.author) + '<span class="dot">&#9670;</span>' : "") +
+                        '<a href="./backlog.html">Alle Andachten im Back&#8209;Log</a>' +
+                    '</footer>' +
+                    '</article>';
+
+                stage.innerHTML = html;
+                document.title = a.title + " — DailyAndacht";
+            }
+
+            function loadSermon(id) {
+                return fetch("./andachten/files/" + id + ".json")
+                    .then(function (r) {
+                        if (!r.ok) throw new Error("Andacht-Datei nicht gefunden");
+                        return r.json();
+                    });
+            }
+
+            function boot() {
+                var params = new URLSearchParams(window.location.search);
+                var id = params.get("id");
+                var date = params.get("date");
+
+                showState("Andacht wird geladen&#8230;");
+
+                DA.openDB().then(function (db) {
+                    if (id) {
+                        if (!DA.existsId(db, id)) return notFound();
+                        return loadSermon(id).then(render);
+                    }
+                    if (date) {
+                        var normalized = /^\d{8}$/.test(date)  /* legacy YYYYMMDD */
+                            ? date.slice(0, 4) + "-" + date.slice(4, 6) + "-" + date.slice(6, 8)
+                            : date;
+                        var byDate = DA.idByDate(db, normalized);
+                        if (!byDate) return notFound();
+                        return loadSermon(byDate).then(render);
+                    }
+                    var current = DA.currentId(db);
+                    if (!current) return notFound();
+                    return loadSermon(current).then(render);
+                }).catch(function (err) {
+                    console.error(err);
+                    showState(
+                        '<span class="state__title">Etwas ist schiefgelaufen</span>' +
+                        "Die Andacht konnte nicht geladen werden. Bitte lade die Seite neu.",
+                        true
+                    );
+                });
+            }
+
+            function notFound() {
+                showState(
+                    '<span class="state__title">Andacht nicht gefunden</span>' +
+                    'Diese Andacht existiert nicht. ' +
+                    '<a href="./index.html" style="color:var(--ink)">Zur aktuellen Andacht</a>',
+                    true
+                );
+            }
+
+            boot();
+        })();
+    </script>
+</body>
 </html>

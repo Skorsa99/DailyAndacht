@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XR8059THL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XR8059THL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back-Log — DailyAndacht</title>
+    <meta name="description" content="Das Back-Log aller bisherigen DailyAndacht-Andachten, Monat für Monat.">
+
+    <link rel="icon" href="./src/logos/light.jpeg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/css/main.css">
+</head>
+<body>
+    <main class="page">
+        <nav class="topbar reveal" style="--i:0">
+            <a href="./index.html">Aktuelle&nbsp;Andacht</a>
+            <span class="spacer"></span>
+            <a href="./backlog.html">Back&#8209;Log</a>
+        </nav>
+
+        <header class="masthead reveal" style="--i:1">
+            <a class="brand" href="./index.html" aria-label="Zur aktuellen Andacht">
+                <img class="brand__mark" src="./src/logos/light.jpeg" alt="DailyAndacht" width="82" height="82">
+                <span class="brand__word">DailyAndacht</span>
+            </a>
+        </header>
+
+        <section class="backlog reveal" style="--i:2">
+            <div class="monthnav">
+                <button class="navbtn" id="prev" type="button" aria-label="Vorheriger Monat" disabled>&#8249;</button>
+                <div class="monthnav__title" id="monthTitle">&#8230;</div>
+                <button class="navbtn" id="next" type="button" aria-label="Nächster Monat" disabled>&#8250;</button>
+            </div>
+            <div id="stage"></div>
+        </section>
+    </main>
+
+    <script src="./src/js/db.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            var stage = document.getElementById("stage");
+            var titleEl = document.getElementById("monthTitle");
+            var prevBtn = document.getElementById("prev");
+            var nextBtn = document.getElementById("next");
+
+            var months = [];   // available "YYYY-MM", ascending
+            var index = 0;     // pointer into months
+
+            function esc(s) {
+                return String(s == null ? "" : s)
+                    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            }
+
+            function dayNumber(iso) { return DA.parseISO(iso).getDate(); }
+            function dayLabel(iso)  { return DA.WEEKDAYS_DE[DA.parseISO(iso).getDay()].slice(0, 2); }
+
+            function renderMonth(db) {
+                var ym = months[index];
+                titleEl.textContent = DA.formatMonth(ym);
+                prevBtn.disabled = (index <= 0);
+                nextBtn.disabled = (index >= months.length - 1);
+
+                var rows = DA.sermonsInMonth(db, ym);
+                if (!rows.length) {
+                    stage.innerHTML = '<div class="state">Keine Andachten in diesem Monat.</div>';
+                    return;
+                }
+
+                var items = rows.map(function (r) {
+                    var read = r.read_time_minutes ? esc(r.read_time_minutes) + " Min." : "";
+                    return '<a class="card" href="./index.html?id=' + encodeURIComponent(r.id) + '">' +
+                        '<span class="card__day">' + dayNumber(r.date) +
+                            '<small>' + esc(dayLabel(r.date)) + '</small></span>' +
+                        '<span class="card__title">' + esc(r.title) + '</span>' +
+                        (read ? '<span class="card__read">' + read + '</span>' : '') +
+                    '</a>';
+                }).join("");
+
+                stage.innerHTML = '<div class="cards">' + items + '</div>';
+            }
+
+            function boot() {
+                DA.openDB().then(function (db) {
+                    months = DA.availableMonths(db);
+                    if (!months.length) {
+                        titleEl.textContent = "Back-Log";
+                        stage.innerHTML = '<div class="state">Noch keine Andachten vorhanden.</div>';
+                        return;
+                    }
+
+                    // Start at the month requested via ?month=YYYY-MM, else the newest.
+                    var requested = new URLSearchParams(window.location.search).get("month");
+                    var found = requested ? months.indexOf(requested) : -1;
+                    index = found >= 0 ? found : months.length - 1;
+
+                    prevBtn.addEventListener("click", function () {
+                        if (index > 0) { index--; renderMonth(db); }
+                    });
+                    nextBtn.addEventListener("click", function () {
+                        if (index < months.length - 1) { index++; renderMonth(db); }
+                    });
+
+                    renderMonth(db);
+                }).catch(function (err) {
+                    console.error(err);
+                    titleEl.textContent = "Back-Log";
+                    stage.innerHTML =
+                        '<div class="state state--error">' +
+                        '<span class="state__title">Etwas ist schiefgelaufen</span>' +
+                        "Das Back-Log konnte nicht geladen werden. Bitte lade die Seite neu.</div>";
+                });
+            }
+
+            boot();
+        })();
+    </script>
+</body>
+</html>

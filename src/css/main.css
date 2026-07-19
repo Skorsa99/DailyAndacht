@@ -1,12 +1,514 @@
+/* ============================================================================
+   DailyAndacht — reader styles
+   An editorial, letterpress-inspired evolution of the v1 paper/ink identity.
+   Palette and logo are carried over from v1; typography and rhythm are new.
+   ========================================================================== */
+
+/* ----- Design tokens ------------------------------------------------------ */
 :root {
-    --primary-color: #1A1D1E;
+    /* Paper is kept at the exact v1 grey so the D+A monogram (a JPEG on the
+       same grey) sits on the page without a visible seam. */
+    --paper:      #EFEFEF;
+    --paper-sink: #E7E7E5;   /* very slightly recessed panels / hover */
+    --ink:        #1A1D1E;
+    --ink-soft:   #43464A;   /* body-adjacent, prayer */
+    --ink-mute:   #7B7E7E;   /* meta, labels */
+    --accent:     #8C6A34;   /* antique gold — used sparingly */
+    --accent-lo:  #A98A4B;
+    --rule:       rgba(26, 29, 30, 0.16);
+    --rule-soft:  rgba(26, 29, 30, 0.08);
 
-    --secondary-color: #EFEFEF;
+    --serif-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --serif-body:    "Spectral", Georgia, serif;
+    --mono:          "Courier Prime", "Courier New", monospace;
 
-    --font: Courier;
+    --measure: 40rem;            /* comfortable reading width */
+    --shadow-lift: 0 1px 2px rgba(26,29,30,.05), 0 14px 34px rgba(26,29,30,.09);
 }
 
+/* ----- Reset-ish ---------------------------------------------------------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
 body {
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
+    margin: 0;
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif-body);
+    font-size: 18px;
+    line-height: 1.72;
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "liga" 1, "onum" 1, "kern" 1;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Faint uniform paper grain for atmosphere. Uniform + very low opacity so it
+   never reads as a seam behind the logo. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .5;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+a { color: inherit; }
+
+::selection {
+    background: rgba(140, 106, 52, 0.22);
+}
+
+/* ----- Layout scaffold ---------------------------------------------------- */
+.page {
+    position: relative;
+    z-index: 1;
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1.25rem, 5vw, 2rem) 5rem;
+}
+
+/* ----- Top bar ------------------------------------------------------------ */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+}
+
+.topbar a {
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 2px;
+    transition: color .25s ease;
+}
+
+.topbar a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 100%;
+    bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: right .3s ease;
+}
+
+.topbar a:hover { color: var(--ink); }
+.topbar a:hover::after { right: 0; }
+
+.topbar .spacer { flex: 1; }
+
+/* ----- Masthead ----------------------------------------------------------- */
+.masthead {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+.brand {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand__mark {
+    width: clamp(64px, 16vw, 82px);
+    height: auto;
+    aspect-ratio: 1 / 1;
+}
+
+.brand__word {
+    margin-top: .85rem;
+    font-family: var(--serif-display);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: .96rem;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    text-indent: .32em;      /* optical centering for tracked caps */
+    color: var(--ink);
+}
+
+/* ============================================================================
+   READER (index.html)
+   ========================================================================== */
+.article { margin-top: clamp(2.25rem, 6vw, 3.5rem); }
+
+.meta {
+    margin: 0 0 1.4rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+}
+
+.meta .dot {
+    color: var(--accent);
+    margin: 0 .55em;
+}
+
+.title {
+    margin: 0 auto;
+    max-width: 22ch;
+    font-family: var(--serif-display);
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-size: clamp(2.1rem, 6.4vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.012em;
+    text-align: center;
+    text-wrap: balance;
+}
+
+/* Scripture reference (bible_verse is a citation, not the verse text) */
+.scripture {
+    margin: clamp(1.6rem, 4vw, 2.4rem) auto clamp(2rem, 5vw, 2.9rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .55rem;
+}
+
+.scripture__label {
+    font-family: var(--mono);
+    font-size: .66rem;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+}
+
+.scripture__ref {
+    font-family: var(--serif-display);
+    font-optical-sizing: auto;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.15rem, 3.4vw, 1.5rem);
+    color: var(--accent);
+    line-height: 1.3;
+    text-align: center;
+}
+
+.scripture::after {
+    content: "";
+    width: 2.2rem;
+    height: 1px;
+    margin-top: .35rem;
+    background: var(--rule);
+}
+
+/* Body */
+.body { color: var(--ink); }
+
+.body p {
+    margin: 0 0 1.25em;
+}
+
+.body p:last-child { margin-bottom: 0; }
+
+/* Drop cap for the opening paragraph */
+.body p:first-of-type::first-letter {
+    font-family: var(--serif-display);
+    font-weight: 600;
+    font-size: 3.5em;
+    line-height: .82;
+    float: left;
+    margin: .06em .12em 0 0;
+    color: var(--accent);
+}
+
+/* ----- Movements: prayer / activity --------------------------------------- */
+.movement { margin-top: clamp(2.4rem, 6vw, 3.4rem); }
+.movement[hidden] { display: none; }
+
+.ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--accent);
+    margin-bottom: clamp(1.4rem, 4vw, 2rem);
+}
+
+.ornament::before,
+.ornament::after {
+    content: "";
+    height: 1px;
+    width: min(6rem, 22vw);
+    background: linear-gradient(to var(--dir, right), transparent, var(--rule));
+}
+.ornament::before { --dir: left; }
+
+.ornament__glyph {
+    font-family: var(--serif-display);
+    font-size: .9rem;
+    letter-spacing: .1em;
+    transform: translateY(-1px);
+}
+
+.label {
+    margin: 0 0 1rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+}
+
+.prayer {
+    font-style: italic;
+    color: var(--ink-soft);
+    border-left: 2px solid var(--accent);
+    padding-left: 1.4rem;
+    margin-left: .1rem;
+}
+.prayer p { margin: 0 0 1em; }
+.prayer p:last-child { margin-bottom: 0; }
+
+.activity {
+    color: var(--ink-soft);
+}
+.activity p { margin: 0 0 1em; }
+.activity p:last-child { margin-bottom: 0; }
+
+/* ----- Colophon ----------------------------------------------------------- */
+.colophon {
+    margin-top: clamp(3rem, 8vw, 4.5rem);
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--rule-soft);
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+}
+
+.colophon a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1px;
+    transition: border-color .25s ease, color .25s ease;
+}
+.colophon a:hover { color: var(--accent); border-color: var(--accent); }
+
+.colophon .dot { color: var(--accent); margin: 0 .55em; }
+
+/* ============================================================================
+   BACKLOG (backlog.html)
+   ========================================================================== */
+.backlog { margin-top: clamp(2.5rem, 6vw, 3.75rem); }
+
+.monthnav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 4vw, 2rem);
+    margin-bottom: clamp(1.75rem, 5vw, 2.75rem);
+}
+
+.monthnav__title {
+    min-width: 8.5em;
+    text-align: center;
+    font-family: var(--serif-display);
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-size: clamp(1.5rem, 5vw, 2.1rem);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+}
+
+.navbtn {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: none;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif-body);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: transform .25s ease, border-color .25s ease,
+                background-color .25s ease, box-shadow .25s ease, opacity .25s;
+}
+
+.navbtn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-1px);
+}
+.navbtn:active:not(:disabled) { transform: translateY(0) scale(.97); }
+
+.navbtn:disabled {
+    opacity: .3;
+    cursor: not-allowed;
+}
+
+/* Month list — a "table of contents" of that month's readings */
+.cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule-soft);
+}
+
+.card {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr auto;
+    align-items: baseline;
+    gap: 1.1rem;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+    padding: 1.15rem .35rem 1.15rem .6rem;
+    border-bottom: 1px solid var(--rule-soft);
+    border-radius: 12px;
+    position: relative;
+    transition: background-color .28s ease, transform .28s cubic-bezier(.2,.8,.2,1);
+}
+
+.card::after {
+    content: "→";
+    position: absolute;
+    right: .35rem;
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity .28s ease, transform .28s ease;
+    font-family: var(--serif-body);
+}
+
+.card:hover {
+    background: var(--paper-sink);
+    transform: translateX(4px);
+}
+.card:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+.card__day {
+    font-family: var(--serif-display);
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-size: 1.85rem;
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: lining-nums;
+    text-align: center;
+}
+.card__day small {
+    display: block;
+    font-family: var(--mono);
+    font-size: .58rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-top: .35rem;
+}
+
+.card__title {
+    font-family: var(--serif-body);
+    font-size: 1.08rem;
+    line-height: 1.35;
+    color: var(--ink);
+    padding-right: 1.25rem;
+}
+
+.card__read {
+    font-family: var(--mono);
+    font-size: .66rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    white-space: nowrap;
+    padding-right: 1.25rem;
+}
+
+/* ----- State messages ----------------------------------------------------- */
+.state {
+    text-align: center;
+    color: var(--ink-mute);
+    font-family: var(--mono);
+    font-size: .8rem;
+    letter-spacing: .12em;
+    padding: clamp(3rem, 12vw, 6rem) 1rem;
+}
+.state--error { color: var(--accent); }
+
+.state__title {
+    display: block;
+    font-family: var(--serif-display);
+    font-size: 1.5rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+    margin-bottom: .6rem;
+}
+
+/* ----- Load-in motion ----------------------------------------------------- */
+.reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: rise .85s cubic-bezier(.2, .8, .2, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 90ms + 60ms);
+}
+
+@keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    .brand__mark, .card, .navbtn, .topbar a::after { transition: none; }
+}
+
+/* ----- Responsive --------------------------------------------------------- */
+@media (max-width: 560px) {
+    body { font-size: 17px; }
+
+    .card {
+        grid-template-columns: 2.75rem 1fr;
+        gap: .5rem 1rem;
+    }
+    .card__read {
+        grid-column: 2;
+        padding-right: 0;
+    }
+    .card__title { padding-right: 1.5rem; }
+    .card::after { display: none; }
 }
