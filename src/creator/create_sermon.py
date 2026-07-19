@@ -174,9 +174,15 @@ def call_ollama(model: str, user_prompt: str) -> dict:
                 "format": "json",
                 "stream": False,
             },
-            timeout=120,
+            timeout=600,
         )
         resp.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise OllamaError(
+            "Ollama hat nicht rechtzeitig geantwortet (Timeout). Das Modell wird beim ersten "
+            "Aufruf evtl. erst geladen, das kann bei großen Modellen einige Minuten dauern. "
+            "Bitte erneut versuchen."
+        )
     except requests.exceptions.RequestException as e:
         raise OllamaError(f"Ollama ist nicht erreichbar oder hat einen Fehler geliefert: {e}")
 
