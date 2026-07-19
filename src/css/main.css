@@ -18,11 +18,14 @@
     
     --paper:      #EFEFEF;
     --paper-sink: #E7E7E5;   /* very slightly recessed panels / hover */
-    --ink:        #1A1D1E;
-    --ink-soft:   #43464A;   /* body-adjacent, prayer */
-    --ink-mute:   #7B7E7E;   /* meta, labels */
-    --accent:     #8C6A34;   /* antique gold — used sparingly */
-    --accent-lo:  #A98A4B;
+    --ink:        #9E5867;   /* title — muted rose */
+    --ink-soft:   #84616A;   /* body-adjacent, prayer — softened rose */
+    --ink-mute:   #6A7640;   /* meta, labels — muted olive */
+    --accent:     #6A7640;   /* decorative highlight, aligned with subtitles */
+    --accent-lo:  #ACB297;   /* lighter olive tint */
+
+    --ink-orig:      #1A1D1E;   /* original dark ink — wordmark, body, prayer */
+    --ink-soft-orig: #43464A;   /* original dark ink, softened — prayer body */
 
 
 
@@ -157,7 +160,7 @@ a { color: inherit; }
     letter-spacing: .32em;
     text-transform: uppercase;
     text-indent: .32em;      /* optical centering for tracked caps */
-    color: var(--ink);
+    color: var(--ink-orig);
 }
 
 /* ============================================================================
@@ -230,7 +233,7 @@ a { color: inherit; }
 }
 
 /* Body */
-.body { color: var(--ink); }
+.body { color: var(--ink-orig); }
 
 .body p {
     margin: 0 0 1.25em;
@@ -290,7 +293,7 @@ a { color: inherit; }
 
 .prayer {
     font-style: italic;
-    color: var(--ink-soft);
+    color: var(--ink-soft-orig);
     border-left: 2px solid var(--accent);
     padding-left: 1.4rem;
     margin-left: .1rem;
