@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Andacht erstellen &ndash; KI-Unterst&uuml;tzt</title>
+<style>
+  :root {
+    --primary-color: #1A1D1E;
+    --secondary-color: #EFEFEF;
+    --font: Courier;
+  }
+  body {
+    font-family: var(--font), monospace;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  nav {
+    margin-bottom: 1.5rem;
+  }
+  nav a {
+    color: var(--primary-color);
+    margin-right: 1rem;
+  }
+  nav a.active {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  h1 {
+    font-size: 1.3rem;
+  }
+  h2 {
+    font-size: 1.1rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--primary-color);
+    padding-top: 1rem;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  input, textarea, select {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid var(--primary-color);
+    background: white;
+    color: var(--primary-color);
+  }
+  button {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    font-family: inherit;
+    font-size: 1rem;
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    opacity: 0.85;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  button.secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+  }
+  #status {
+    margin-top: 1rem;
+    padding: 0;
+    font-weight: bold;
+    white-space: pre-wrap;
+  }
+  #status:not(:empty) {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--primary-color);
+  }
+  #status.success {
+    background: #dff2df;
+  }
+  #status.error {
+    background: #f8d7d7;
+  }
+  #model-error {
+    color: #8a1f1f;
+    font-weight: bold;
+  }
+  #date-strip {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .date-box {
+    flex: 0 0 auto;
+    width: 5.5rem;
+    padding: 0.4rem 0.3rem;
+    border: 1px solid var(--primary-color);
+    text-align: center;
+    font-size: 0.7rem;
+    box-sizing: border-box;
+  }
+  .date-box .weekday {
+    display: block;
+    font-weight: bold;
+  }
+  .date-box .label {
+    display: block;
+    margin-top: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .date-box.filled {
+    background: var(--primary-color);
+    color: var(--secondary-color);
+  }
+  .date-box.empty {
+    background: white;
+  }
+  [hidden] {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+  <nav>
+    <a href="/manual">Manuell</a>
+    <a href="/assisted" class="active">KI-Unterst&uuml;tzt</a>
+  </nav>
+  <h1>Neue Andacht &ndash; KI-Unterst&uuml;tzt erstellen</h1>
+
+  <div id="date-strip"></div>
+
+  <section id="input-stage">
+    <label for="date">Datum (optional &ndash; ohne Angabe wird automatisch das n&auml;chste freie Datum ab heute verwendet)</label>
+    <input type="date" id="date">
+
+    <label for="author">Autor</label>
+    <input type="text" id="author" value="{{ default_author }}">
+
+    <label for="topic">Thema (optional)</label>
+    <input type="text" id="topic" placeholder="Worum soll es gehen?">
+
+    <label for="verse-hint">Bibelstelle (optional &ndash; falls die Andacht auf einem bestimmten Vers basieren soll)</label>
+    <input type="text" id="verse-hint" placeholder="z.B. Psalm 23,1">
+
+    <label for="notes">Notizen / Anweisungen (optional)</label>
+    <textarea id="notes" rows="6" placeholder="Was soll enthalten sein? Zitate, Punkte, gew&uuml;nschter Ton, etc."></textarea>
+
+    <label for="model-select">Modell</label>
+    <select id="model-select"></select>
+    <div id="model-error" hidden></div>
+
+    <button id="generate-btn" type="button">Generieren</button>
+  </section>
+
+  <div id="status"></div>
+
+  <section id="preview-stage" hidden>
+    <h2>Entwurf &uuml;berpr&uuml;fen</h2>
+
+    <label for="p-title">Titel</label>
+    <input type="text" id="p-title">
+
+    <label for="p-bible_verse">Bibelstelle</label>
+    <input type="text" id="p-bible_verse">
+
+    <label for="p-body">Andachtstext</label>
+    <textarea id="p-body" rows="16"></textarea>
+
+    <label for="p-prayer">Gebet</label>
+    <textarea id="p-prayer" rows="6"></textarea>
+
+    <label for="p-activity">Vorschlag f&uuml;r heute (1-2 S&auml;tze)</label>
+    <textarea id="p-activity" rows="2"></textarea>
+
+    <h2>Feedback / &Auml;nderungsw&uuml;nsche</h2>
+    <label for="feedback">Was soll ge&auml;ndert werden?</label>
+    <textarea id="feedback" rows="4" placeholder="z.B. K&uuml;rzer fassen, anderen Bibelvers verwenden, ..."></textarea>
+    <button id="regenerate-btn" type="button" class="secondary">Mit Feedback neu generieren</button>
+
+    <br>
+    <button id="save-btn" type="button">Speichern</button>
+  </section>
+
+  <script>
+    const dateInput = document.getElementById('date');
+    const authorInput = document.getElementById('author');
+    const topicInput = document.getElementById('topic');
+    const notesInput = document.getElementById('notes');
+    const verseHintInput = document.getElementById('verse-hint');
+    const modelSelect = document.getElementById('model-select');
+    const modelError = document.getElementById('model-error');
+    const generateBtn = document.getElementById('generate-btn');
+    const regenerateBtn = document.getElementById('regenerate-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const statusEl = document.getElementById('status');
+    const previewStage = document.getElementById('preview-stage');
+    const feedbackInput = document.getElementById('feedback');
+
+    const previewFieldIds = ['title', 'bible_verse', 'body', 'prayer', 'activity'];
+    const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+
+    async function loadDateStrip() {
+      const stripEl = document.getElementById('date-strip');
+      try {
+        const res = await fetch('/api/upcoming-dates?days=7');
+        const json = await res.json();
+        if (!json.ok) return;
+        stripEl.innerHTML = '';
+        for (const day of json.days) {
+          const d = new Date(day.date + 'T00:00:00');
+          const box = document.createElement('div');
+          box.className = 'date-box ' + (day.title ? 'filled' : 'empty');
+          box.title = day.title || 'Frei';
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          box.innerHTML = `<span class="weekday">${WEEKDAYS[d.getDay()]} ${dd}.${mm}.</span><span class="label">${day.title ? day.title : 'frei'}</span>`;
+          stripEl.appendChild(box);
+        }
+      } catch (err) {
+        stripEl.innerHTML = '';
+      }
+    }
+
+    function currentDraftFromPreviewFields() {
+      const draft = {};
+      for (const id of previewFieldIds) {
+        draft[id] = document.getElementById('p-' + id).value;
+      }
+      return draft;
+    }
+
+    function fillPreviewFields(draft) {
+      for (const id of previewFieldIds) {
+        document.getElementById('p-' + id).value = draft[id] || '';
+      }
+    }
+
+    async function loadModels() {
+      try {
+        const res = await fetch('/api/ollama/models');
+        const json = await res.json();
+        if (json.ok && json.models.length > 0) {
+          modelSelect.innerHTML = '';
+          for (const name of json.models) {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            modelSelect.appendChild(opt);
+          }
+          modelSelect.hidden = false;
+          modelError.hidden = true;
+          generateBtn.disabled = false;
+        } else {
+          throw new Error(json.error || 'Keine Modelle installiert.');
+        }
+      } catch (err) {
+        modelSelect.hidden = true;
+        modelError.textContent = err.message;
+        modelError.hidden = false;
+        generateBtn.disabled = true;
+      }
+    }
+
+    async function generate(withFeedback) {
+      const body = { model: modelSelect.value, date: dateInput.value };
+      if (withFeedback) {
+        body.previous_draft = currentDraftFromPreviewFields();
+        body.feedback = feedbackInput.value;
+      } else {
+        body.topic = topicInput.value;
+        body.notes = notesInput.value;
+        body.bible_verse = verseHintInput.value;
+      }
+
+      statusEl.className = '';
+      statusEl.textContent = 'Generiere...';
+      generateBtn.disabled = true;
+      regenerateBtn.disabled = true;
+
+      try {
+        const res = await fetch('/assisted/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const json = await res.json();
+        if (json.ok) {
+          fillPreviewFields(json.draft);
+          previewStage.hidden = false;
+          feedbackInput.value = '';
+          statusEl.className = 'success';
+          statusEl.textContent = 'Entwurf erstellt. Bitte überprüfen.';
+        } else {
+          statusEl.className = 'error';
+          statusEl.textContent = 'Fehler: ' + json.error;
+          if (json.error_type === 'date_conflict') {
+            dateInput.value = '';
+          }
+        }
+      } catch (err) {
+        statusEl.className = 'error';
+        statusEl.textContent = 'Fehler: ' + err.message;
+      } finally {
+        generateBtn.disabled = false;
+        regenerateBtn.disabled = false;
+      }
+    }
+
+    function resetAfterSave() {
+      topicInput.value = '';
+      notesInput.value = '';
+      verseHintInput.value = '';
+      dateInput.value = '';
+      authorInput.value = '{{ default_author }}';
+      feedbackInput.value = '';
+      fillPreviewFields({ title: '', bible_verse: '', body: '', prayer: '', activity: '' });
+      previewStage.hidden = true;
+    }
+
+    async function save() {
+      const data = Object.assign(currentDraftFromPreviewFields(), {
+        date: dateInput.value,
+        author: authorInput.value,
+      });
+      saveBtn.disabled = true;
+      statusEl.className = '';
+      statusEl.textContent = 'Speichere...';
+      try {
+        const res = await fetch('/assisted/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (json.ok) {
+          statusEl.className = 'success';
+          statusEl.textContent = `Gespeichert! Datum: ${json.sermon.date}, ID: ${json.sermon.id}, Lesezeit: ${json.sermon.read_time_minutes} Min., Wortanzahl: ${json.sermon.word_count}`;
+          resetAfterSave();
+          loadDateStrip();
+        } else {
+          statusEl.className = 'error';
+          statusEl.textContent = 'Fehler: ' + json.error;
+          if (json.error_type === 'date_conflict') {
+            dateInput.value = '';
+          }
+        }
+      } catch (err) {
+        statusEl.className = 'error';
+        statusEl.textContent = 'Fehler: ' + err.message;
+      } finally {
+        saveBtn.disabled = false;
+      }
+    }
+
+    generateBtn.addEventListener('click', () => generate(false));
+    regenerateBtn.addEventListener('click', () => generate(true));
+    saveBtn.addEventListener('click', save);
+
+    loadModels();
+    loadDateStrip();
+  </script>
+</body>
+</html>

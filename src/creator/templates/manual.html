@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Andacht erstellen &ndash; Manuell</title>
+<style>
+  :root {
+    --primary-color: #1A1D1E;
+    --secondary-color: #EFEFEF;
+    --font: Courier;
+  }
+  body {
+    font-family: var(--font), monospace;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  nav {
+    margin-bottom: 1.5rem;
+  }
+  nav a {
+    color: var(--primary-color);
+    margin-right: 1rem;
+  }
+  nav a.active {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  h1 {
+    font-size: 1.3rem;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  input, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid var(--primary-color);
+    background: white;
+    color: var(--primary-color);
+  }
+  button {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    font-family: inherit;
+    font-size: 1rem;
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    opacity: 0.85;
+  }
+  #status {
+    margin-top: 1rem;
+    padding: 0;
+    font-weight: bold;
+    white-space: pre-wrap;
+  }
+  #status:not(:empty) {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--primary-color);
+  }
+  #status.success {
+    background: #dff2df;
+  }
+  #status.error {
+    background: #f8d7d7;
+  }
+  #date-strip {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .date-box {
+    flex: 0 0 auto;
+    width: 5.5rem;
+    padding: 0.4rem 0.3rem;
+    border: 1px solid var(--primary-color);
+    text-align: center;
+    font-size: 0.7rem;
+    box-sizing: border-box;
+  }
+  .date-box .weekday {
+    display: block;
+    font-weight: bold;
+  }
+  .date-box .label {
+    display: block;
+    margin-top: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .date-box.filled {
+    background: var(--primary-color);
+    color: var(--secondary-color);
+  }
+  .date-box.empty {
+    background: white;
+  }
+</style>
+</head>
+<body>
+  <nav>
+    <a href="/manual" class="active">Manuell</a>
+    <a href="/assisted">KI-Unterst&uuml;tzt</a>
+  </nav>
+  <h1>Neue Andacht &ndash; Manuell erstellen</h1>
+
+  <div id="date-strip"></div>
+
+  <form id="sermon-form">
+    <label for="date">Datum (optional &ndash; ohne Angabe wird automatisch das n&auml;chste freie Datum ab heute verwendet)</label>
+    <input type="date" id="date" name="date">
+
+    <label for="title">Titel</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="author">Autor</label>
+    <input type="text" id="author" name="author" value="{{ default_author }}">
+
+    <label for="bible_verse">Bibelstelle</label>
+    <input type="text" id="bible_verse" name="bible_verse" required placeholder="z.B. Psalm 19,1-6">
+
+    <label for="body">Andachtstext</label>
+    <textarea id="body" name="body" rows="16" required></textarea>
+
+    <label for="prayer">Gebet</label>
+    <textarea id="prayer" name="prayer" rows="6" required></textarea>
+
+    <label for="activity">Vorschlag f&uuml;r heute (1-2 S&auml;tze, optional)</label>
+    <textarea id="activity" name="activity" rows="2"></textarea>
+
+    <button type="submit">Speichern</button>
+  </form>
+
+  <div id="status"></div>
+
+  <script>
+    const form = document.getElementById('sermon-form');
+    const statusEl = document.getElementById('status');
+    const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+
+    async function loadDateStrip() {
+      const stripEl = document.getElementById('date-strip');
+      try {
+        const res = await fetch('/api/upcoming-dates?days=7');
+        const json = await res.json();
+        if (!json.ok) return;
+        stripEl.innerHTML = '';
+        for (const day of json.days) {
+          const d = new Date(day.date + 'T00:00:00');
+          const box = document.createElement('div');
+          box.className = 'date-box ' + (day.title ? 'filled' : 'empty');
+          box.title = day.title || 'Frei';
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          box.innerHTML = `<span class="weekday">${WEEKDAYS[d.getDay()]} ${dd}.${mm}.</span><span class="label">${day.title ? day.title : 'frei'}</span>`;
+          stripEl.appendChild(box);
+        }
+      } catch (err) {
+        stripEl.innerHTML = '';
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      statusEl.className = '';
+      statusEl.textContent = 'Speichere...';
+      try {
+        const res = await fetch('/manual/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (json.ok) {
+          statusEl.className = 'success';
+          statusEl.textContent = `Gespeichert! Datum: ${json.sermon.date}, ID: ${json.sermon.id}, Lesezeit: ${json.sermon.read_time_minutes} Min., Wortanzahl: ${json.sermon.word_count}`;
+          form.reset();
+          document.getElementById('author').value = '{{ default_author }}';
+          loadDateStrip();
+        } else {
+          statusEl.className = 'error';
+          statusEl.textContent = 'Fehler: ' + json.error;
+          if (json.error_type === 'date_conflict') {
+            document.getElementById('date').value = '';
+          }
+        }
+      } catch (err) {
+        statusEl.className = 'error';
+        statusEl.textContent = 'Fehler: ' + err.message;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    loadDateStrip();
+  </script>
+</body>
+</html>
