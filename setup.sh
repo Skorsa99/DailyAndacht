@@ -86,7 +86,7 @@ step "Checking Python ($PYTHON_FORMULA)"
 if brew list --formula "$PYTHON_FORMULA" >/dev/null 2>&1; then
   ok "$PYTHON_FORMULA already installed"
 else
-  warn "Installing $PYTHON_FORMULA…"
+  warn "Installing ${PYTHON_FORMULA}…"
   brew install "$PYTHON_FORMULA"
   ok "$PYTHON_FORMULA installed"
 fi
