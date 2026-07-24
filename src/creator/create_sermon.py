@@ -92,17 +92,15 @@ def compute_read_time(*text_parts):
 
 
 def next_available_date() -> str:
-    """Earliest date from today onward that has no sermon yet, so gaps left by
-    explicitly-dated sermons further out get filled in before extending past them."""
+    """The day after the latest existing sermon, so new sermons always hang onto
+    the end of the run and catch up day-by-day, without filling earlier gaps.
+    Falls back to today only when there are no sermons yet."""
     conn = sqlite3.connect(DB_PATH)
-    taken = {row[0] for row in conn.execute("SELECT date FROM sermons").fetchall()}
+    latest = conn.execute("SELECT MAX(date) FROM sermons").fetchone()[0]
     conn.close()
-    candidate = datetime.now().date()
-    for _ in range(3650):
-        if candidate.isoformat() not in taken:
-            return candidate.isoformat()
-        candidate += timedelta(days=1)
-    raise ValueError("Kein freies Datum in den nächsten 10 Jahren gefunden.")
+    if not latest:
+        return datetime.now().date().isoformat()
+    return (date_cls.fromisoformat(latest) + timedelta(days=1)).isoformat()
 
 
 def date_taken(date: str) -> bool:
