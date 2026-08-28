@@ -48,7 +48,7 @@ Each sermon is a JSON file at `andachten/files/{uuid}.json`:
 
 The authoring tool runs locally and opens a small web form in your browser. It's not part of the public site.
 
-1. Install dependencies once (uses the project's `.venv`):
+0. Install dependencies once (to this only once when setting up the computer) (uses the project's `.venv`):
    ```
    ./.venv/bin/pip install -r requirements.txt
    ./.venv/bin/playwright install webkit
@@ -57,12 +57,27 @@ The authoring tool runs locally and opens a small web form in your browser. It's
    only to render promo images (see "Promo images" below). It needs no
    system-wide browser — Safari-only machines work fine. You can skip it if you
    don't need the image feature; the rest of the tool still works.
+1. Ready the eviroment:
+   ```
+   git pull
+   ```
+   Get all new seroms that someone else might have created if you are not the only contributor
 2. Start the tool in whichever mode you want:
    ```
    ./.venv/bin/python src/creator/create_sermon.py -manual
+   ```
+   or
+   ```
    ./.venv/bin/python src/creator/create_sermon.py -assisted
    ```
    This starts a local Flask server (default port `5050`, override with `--port`) and opens the corresponding page in your browser. Both `/manual` and `/assisted` are always reachable, regardless of which flag started the server.
+3. Start the tool in whichever mode you want:
+   click the 'control + c' buttons
+   ```
+   git add . && git commit -m "adding a or multiple new sermons" && git push
+   ```
+   push all the sermons to the web so users can read it (they only get published when it is their day, you can push whenever you want)
+
 
 ### Manual mode
 
