@@ -120,29 +120,35 @@
         return query(db, "SELECT 1 FROM sermons WHERE id = $id LIMIT 1", { $id: id }).length > 0;
     }
 
-    /* Distinct "YYYY-MM" months that contain sermons, ascending. */
+    /* Distinct "YYYY-MM" months that contain published sermons, ascending. */
     function availableMonths(db) {
-        return query(db, "SELECT DISTINCT substr(date,1,7) AS ym FROM sermons ORDER BY ym")
+        var today = isoDate(new Date());
+        return query(db,
+            "SELECT DISTINCT substr(date,1,7) AS ym FROM sermons WHERE date <= $t ORDER BY ym",
+            { $t: today })
             .map(function (r) { return r.ym; });
     }
 
-    /* All sermons within a "YYYY-MM" month, by day ascending. */
+    /* Published sermons within a "YYYY-MM" month, by day ascending. */
     function sermonsInMonth(db, ym) {
         var start = ym + "-01";
         var p = ym.split("-");
         var next = new Date(Number(p[0]), Number(p[1]), 1); // 1st of following month
+        var today = isoDate(new Date());
         return query(db,
             "SELECT id, date, title, author, read_time_minutes FROM sermons " +
-            "WHERE date >= $s AND date < $e ORDER BY date ASC, created_at ASC",
-            { $s: start, $e: isoDate(next) });
+            "WHERE date >= $s AND date < $e AND date <= $t ORDER BY date ASC, created_at ASC",
+            { $s: start, $e: isoDate(next), $t: today });
     }
 
-    /* Every sermon, newest first — small enough to fetch once and filter
-       (e.g. for title search) entirely in JS. */
+    /* Every published sermon, newest first — small enough to fetch once and
+       filter (e.g. for title search) entirely in JS. */
     function allSermons(db) {
+        var today = isoDate(new Date());
         return query(db,
             "SELECT id, date, title, author, read_time_minutes FROM sermons " +
-            "ORDER BY date DESC, created_at DESC");
+            "WHERE date <= $t ORDER BY date DESC, created_at DESC",
+            { $t: today });
     }
 
     global.DA = {
